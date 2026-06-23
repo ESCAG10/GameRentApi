@@ -1,0 +1,54 @@
+package handlers
+
+import (
+	"gamerentapi/models"
+	"gamerentapi/services"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+type UsuarioHandler struct {
+	UsuarioService *services.UsuarioService
+}
+
+func NewUsuarioHandler(service *services.UsuarioService) *UsuarioHandler {
+	return &UsuarioHandler{
+		UsuarioService: service,
+	}
+}
+
+func (h *UsuarioHandler) CreateUsuario(c *fiber.Ctx) error {
+
+	var usuario models.Usuario
+
+	if err := c.BodyParser(&usuario); err != nil {
+		return c.Status(400).JSON(fiber.Map{
+			"error": "Datos inválidos",
+		})
+	}
+
+	err := h.UsuarioService.Create(&usuario)
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(201).JSON(fiber.Map{
+		"message": "Usuario creado correctamente",
+	})
+}
+
+func (h *UsuarioHandler) GetUsuarios(c *fiber.Ctx) error {
+
+	usuarios, err := h.UsuarioService.FindAll()
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.JSON(usuarios)
+}
