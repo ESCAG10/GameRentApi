@@ -1,30 +1,36 @@
 package services
 
 import (
-	"errors"
 	"gamerentapi/models"
 	"gamerentapi/repositories"
 )
 
 type VideojuegoService struct {
-	VideojuegoRepository *repositories.VideojuegoRepository
+	Repository *repositories.VideojuegoRepository
 }
 
-func NewVideojuegoService(repo *repositories.VideojuegoRepository) *VideojuegoService {
+func NewVideojuegoService(repository *repositories.VideojuegoRepository) *VideojuegoService {
 	return &VideojuegoService{
-		VideojuegoRepository: repo,
+		Repository: repository,
 	}
 }
 
 func (s *VideojuegoService) Create(videojuego *models.Videojuego) error {
+	return s.Repository.Create(videojuego)
+}
 
-	if videojuego.Titulo == "" {
-		return errors.New("el título es obligatorio")
-	}
+func (s *VideojuegoService) FindAll() ([]models.Videojuego, error) {
+	return s.Repository.FindAll()
+}
 
-	if videojuego.PrecioRenta <= 0 {
-		return errors.New("el precio debe ser mayor a cero")
-	}
+func (s *VideojuegoService) FindByID(id string) (*models.Videojuego, error) {
+	return s.Repository.FindByID(id)
+}
 
-	return s.VideojuegoRepository.Create(videojuego)
+func (s *VideojuegoService) Update(id string, videojuego *models.Videojuego) error {
+	return s.Repository.Update(id, videojuego)
+}
+
+func (s *VideojuegoService) Delete(id string) error {
+	return s.Repository.Delete(id)
 }

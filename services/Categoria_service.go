@@ -1,26 +1,37 @@
 package services
 
 import (
-	"errors"
 	"gamerentapi/models"
 	"gamerentapi/repositories"
 )
 
 type CategoriaService struct {
-	CategoriaRepository *repositories.CategoriaRepository
+	Repository *repositories.CategoriaRepository
 }
 
-func NewCategoriaService(repo *repositories.CategoriaRepository) *CategoriaService {
+func NewCategoriaService(repository *repositories.CategoriaRepository,) *CategoriaService {
 	return &CategoriaService{
-		CategoriaRepository: repo,
+		Repository: repository,
 	}
 }
 
-func (s *CategoriaService) Create(categoria *models.Categoria) error {
+func (s *CategoriaService) Create(categoria *models.Categoria,) error {
+	return s.Repository.Create(categoria)
+}
 
-	if categoria.Nombre == "" {
-		return errors.New("el nombre de la categoría es obligatorio")
-	}
 
-	return s.CategoriaRepository.Create(categoria)
+func (s *CategoriaService) FindAll() ([]*models.Categoria, error) {
+	return s.Repository.FindAll()
+}
+
+func (s *CategoriaService) FindByID(id string) (*models.Categoria, error) {
+	return s.Repository.FindByID(id)
+}
+
+func (s *CategoriaService) Update(id string, categoria *models.Categoria) error {
+	return s.Repository.Update(id, categoria)
+}
+
+func (s *CategoriaService) Delete(id string) error {
+	return s.Repository.Delete(id)
 }

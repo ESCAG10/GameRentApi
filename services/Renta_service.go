@@ -1,30 +1,36 @@
 package services
 
 import (
-	"errors"
 	"gamerentapi/models"
 	"gamerentapi/repositories"
 )
 
 type RentaService struct {
-	RentaRepository *repositories.RentaRepository
+	Repository *repositories.RentaRepository
 }
 
-func NewRentaService(repo *repositories.RentaRepository) *RentaService {
+func NewRentaService(repository *repositories.RentaRepository) *RentaService {
 	return &RentaService{
-		RentaRepository: repo,
+		Repository: repository,
 	}
 }
 
 func (s *RentaService) Create(renta *models.Renta) error {
+	return s.Repository.Create(renta)
+}
 
-	if renta.UsuarioID.IsZero() {
-		return errors.New("usuario requerido")
-	}
+func (s *RentaService) FindAll() ([]models.Renta, error) {
+	return s.Repository.FindAll()
+}
 
-	if renta.VideojuegoID.IsZero() {
-		return errors.New("videojuego requerido")
-	}
+func (s *RentaService) FindByID(id string) (*models.Renta, error) {
+	return s.Repository.FindByID(id)
+}
 
-	return s.RentaRepository.Create(renta)
+func (s *RentaService) Update(id string, renta *models.Renta) error {
+	return s.Repository.Update(id, renta)
+}
+
+func (s *RentaService) Delete(id string) error {
+	return s.Repository.Delete(id)
 }

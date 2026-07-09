@@ -32,3 +32,15 @@ func (s *UsuarioService) Create(usuario *models.Usuario) error {
 func (s *UsuarioService) FindAll() ([]*models.Usuario, error) {
 	return s.UsuarioRepository.FindAll()
 }
+
+func (s *UsuarioService) FindByID(id string) (*models.Usuario, error) {
+	return s.UsuarioRepository.FindByID(id)
+}
+
+func (s *UsuarioService) Update(id string, usuario *models.Usuario) error {
+	return s.UsuarioRepository.Update(id, usuario)
+}
+
+func (s *UsuarioService) Delete(id string) error {
+	return s.UsuarioRepository.Delete(id)
+}
