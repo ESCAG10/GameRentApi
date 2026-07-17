@@ -6,14 +6,16 @@ import (
 	"gamerentapi/config"
 	"gamerentapi/handlers"
 	"gamerentapi/repositories"
+	"gamerentapi/routes"
 	"gamerentapi/services"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-
+	
 	err := godotenv.Load()
 
 	if err != nil {
@@ -25,53 +27,59 @@ func main() {
 	}
 
 	app := fiber.New()
+
+	app.Use(cors.New())
+
 	
 	// Usuario
-	usuarioCollection := config.Database.Collection("usuarios")
+	usuarioCollection := config.Database.Collection("usuario")
 	
 	usuarioRepository := repositories.NewUsuarioRepository(usuarioCollection,)
 	
 	usuarioService := services.NewUsuarioService(usuarioRepository,)
 	
-	_ = handlers.NewUsuarioHandler(usuarioService,)
-	
+	usuarioHandler := handlers.NewUsuarioHandler(usuarioService,)
+
 	// Categoria
-	categoriaCollection := config.Database.Collection("categorias")
+	categoriaCollection := config.Database.Collection("categoria")
 	
 	categoriaRepository := repositories.NewCategoriaRepository(categoriaCollection,)
 	
 	categoriaService := services.NewCategoriaService(categoriaRepository,)
 	
-	_ = handlers.NewCategoriaHandler(categoriaService,)
-	
+	categoriaHandler := handlers.NewCategoriaHandler(categoriaService,)
+
 	// Videojuego
-	videojuegoCollection := config.Database.Collection("videojuegos")
+	videojuegoCollection := config.Database.Collection("videojuego")
 	
 	videojuegoRepository := repositories.NewVideojuegoRepository(videojuegoCollection,)
 	
 	videojuegoService := services.NewVideojuegoService(videojuegoRepository,)
 	
-	_ = handlers.NewVideojuegoHandler(videojuegoService,)
-	
+	videojuegoHandler := handlers.NewVideojuegoHandler(videojuegoService,)
+
 	// Renta
-	rentaCollection := config.Database.Collection("rentas")
+	rentaCollection := config.Database.Collection("renta")
 	
 	rentaRepository := repositories.NewRentaRepository(rentaCollection,)
 	
 	rentaService := services.NewRentaService(rentaRepository,)
 	
-	_ = handlers.NewRentaHandler(rentaService,)
+	rentaHandler := handlers.NewRentaHandler(rentaService,)
 
-	//Perfil
-	perfilCollection := config.Database.Collection("perfiles")
+	// Perfil
+	perfilCollection := config.Database.Collection("perfil")
 	
 	perfilRepository := repositories.NewPerfilRepository(perfilCollection,)
 	
 	perfilService := services.NewPerfilService(perfilRepository,)
 	
-	_ = handlers.NewPerfilHandler(perfilService,)
+	perfilHandler := handlers.NewPerfilHandler(perfilService,)
 
 
+	// Registrar rutas
+	routes.SetupRoutes(app, usuarioHandler, categoriaHandler, videojuegoHandler, rentaHandler, perfilHandler,)
+	
 	log.Println("Servidor iniciado en http://localhost:3000")
 
 	log.Fatal(app.Listen(":3000"))

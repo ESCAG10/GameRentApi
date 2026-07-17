@@ -5,104 +5,108 @@ import (
 	"gamerentapi/services"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type UsuarioHandler struct {
-	UsuarioService *services.UsuarioService
+    UsuarioService *services.UsuarioService
 }
 
 func NewUsuarioHandler(service *services.UsuarioService) *UsuarioHandler {
-	return &UsuarioHandler{
-		UsuarioService: service,
-	}
+    return &UsuarioHandler{
+        UsuarioService: service,
+    }
 }
 
 func (h *UsuarioHandler) CreateUsuario(c *fiber.Ctx) error {
+    var usuario models.Usuario
 
-	var usuario models.Usuario
+    if err := c.BodyParser(&usuario); err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "Datos inválidos",
+        })
+    }
 
-	if err := c.BodyParser(&usuario); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"error": "Datos inválidos",
-		})
-	}
+    if err := h.UsuarioService.Create(&usuario); err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": err.Error(),
+        })
+    }
 
-	err := h.UsuarioService.Create(&usuario)
-
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.Status(201).JSON(fiber.Map{
-		"message": "Usuario creado correctamente",
-	})
+    return c.Status(fiber.StatusCreated).JSON(usuario)
 }
 
-func (h *UsuarioHandler) GetUsuarios(c *fiber.Ctx) error {
-
-	usuarios, err := h.UsuarioService.FindAll()
-
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.JSON(usuarios)
+func (h *UsuarioHandler) GetUsuario(c *fiber.Ctx) error {
+    usuario, err := h.UsuarioService.FindAll()
+    if err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": err.Error(),
+        })
+    }
+    return c.JSON(usuario)
 }
 
 func (h *UsuarioHandler) GetUsuarioByID(c *fiber.Ctx) error {
-	id := c.Params("id")
+    idHex := c.Params("id")
+    id, err := bson.ObjectIDFromHex(idHex)
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "ID inválido",
+        })
+    }
 
-	usuario, err := h.UsuarioService.FindByID(id)
-
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.JSON(usuario)
+    usuario, err := h.UsuarioService.FindByID(id)
+    if err != nil {
+        return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+            "error": "Usuario no encontrado",
+        })
+    }
+    return c.JSON(usuario)
 }
 
 func (h *UsuarioHandler) UpdateUsuario(c *fiber.Ctx) error {
-	id := c.Params("id")
+    idHex := c.Params("id")
+    id, err := bson.ObjectIDFromHex(idHex)
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "ID inválido",
+        })
+    }
 
-	var usuario models.Usuario
+    var usuario models.Usuario
+    if err := c.BodyParser(&usuario); err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "Datos inválidos",
+        })
+    }
 
-	if err := c.BodyParser(&usuario); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"error": "Datos inválidos",
-		})
-	}
+    if err := h.UsuarioService.Update(id, &usuario); err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": err.Error(),
+        })
+    }
 
-	err := h.UsuarioService.Update(id, &usuario)
-
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.Status(200).JSON(fiber.Map{
-		"message": "Usuario actualizado correctamente",
-	})
+    return c.JSON(fiber.Map{
+        "message": "Usuario actualizado correctamente",
+    })
 }
 
 func (h *UsuarioHandler) DeleteUsuario(c *fiber.Ctx) error {
-	id := c.Params("id")
+    idHex := c.Params("id")
+    id, err := bson.ObjectIDFromHex(idHex)
+    if err != nil {
+        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+            "error": "ID inválido",
+        })
+    }
 
-	err := h.UsuarioService.Delete(id)
+    if err := h.UsuarioService.Delete(id); err != nil {
+        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+            "error": err.Error(),
+        })
+    }
 
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.Status(200).JSON(fiber.Map{
-		"message": "Usuario eliminado correctamente",
-	})
+    return c.JSON(fiber.Map{
+        "message": "Usuario eliminado correctamente",
+    })
 }

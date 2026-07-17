@@ -1,37 +1,43 @@
 package services
 
 import (
+	"errors"
 	"gamerentapi/models"
 	"gamerentapi/repositories"
+
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type PerfilService struct {
-	Repository *repositories.PerfilRepository
+    PerfilRepository *repositories.PerfilRepository
 }
 
-func NewPerfilService(repository *repositories.PerfilRepository) *PerfilService {
-
-	return &PerfilService{
-		Repository: repository,
-	}
+func NewPerfilService(repo *repositories.PerfilRepository) *PerfilService {
+    return &PerfilService{PerfilRepository: repo}
 }
 
 func (s *PerfilService) Create(perfil *models.Perfil) error {
-	return s.Repository.Create(perfil)
+    if perfil.Nombre == "" {
+        return errors.New("el nombre es obligatorio")
+    }
+    if perfil.Telefono == "" {
+        return errors.New("el teléfono es obligatorio")
+    }
+    return s.PerfilRepository.Create(perfil)
 }
 
-func (s *PerfilService) FindAll() ([]models.Perfil, error) {
-	return s.Repository.FindAll()
+func (s *PerfilService) FindAll() ([]*models.Perfil, error) {
+    return s.PerfilRepository.FindAll()
 }
 
-func (s *PerfilService) FindByID(id string) (*models.Perfil, error) {
-	return s.Repository.FindByID(id)
+func (s *PerfilService) FindByID(id bson.ObjectID) (*models.Perfil, error) {
+    return s.PerfilRepository.FindByID(id)
 }
 
-func (s *PerfilService) Update(id string, perfil *models.Perfil) error {
-	return s.Repository.Update(id, perfil)
+func (s *PerfilService) Update(id bson.ObjectID, perfil *models.Perfil) error {
+    return s.PerfilRepository.Update(id, perfil)
 }
 
-func (s *PerfilService) Delete(id string) error {
-	return s.Repository.Delete(id)
+func (s *PerfilService) Delete(id bson.ObjectID) error {
+    return s.PerfilRepository.Delete(id)
 }

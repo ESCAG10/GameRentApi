@@ -15,37 +15,63 @@ func SetupRoutes(
 	perfilHandler *handlers.PerfilHandler,
 ) {
 
-	app.Get("/usuarios", usuarioHandler.GetUsuarios)
+	// ==========================
+	// Ruta principal
+	// ==========================
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{
+			"mensaje": "GameRent API funcionando",
+		})
+	})
 
-	app.Post("/usuarios", usuarioHandler.CreateUsuario)
-	app.Get("/usuarios/:id", usuarioHandler.GetUsuarioByID)
-	app.Put("/usuarios/:id", usuarioHandler.UpdateUsuario)
-	app.Delete("/usuarios/:id", usuarioHandler.DeleteUsuario)
+	// ==========================
+	// Login
+	// ==========================
+	//app.Post("/login", usuarioHandler.Login)
 
-	app.Get("/rentas", rentaHandler.GetRentas)
-	app.Post("/rentas", rentaHandler.CreateRenta)
-	app.Get("/rentas/:id", rentaHandler.GetRenta)
-	app.Put("/rentas/:id", rentaHandler.UpdateRenta)
-	app.Delete("/rentas/:id", rentaHandler.DeleteRenta)
+	// ==========================
+	// Usuario
+	// ==========================
+	app.Get("/usuario", usuarioHandler.GetUsuario)
+	app.Post("/usuario", usuarioHandler.CreateUsuario)
+	app.Get("/usuario/:id", usuarioHandler.GetUsuarioByID)
+	app.Put("/usuario/:id", usuarioHandler.UpdateUsuario)
+	app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
 
-	
-	app.Get("/categorias", categoriaHandler.GetCategorias)
-	app.Post("/categorias", categoriaHandler.CreateCategoria)
-	app.Get("/categorias/:id", categoriaHandler.GetCategoria)
-	app.Put("/categorias/:id", categoriaHandler.UpdateCategoria)
-	app.Delete("/categorias/:id", categoriaHandler.DeleteCategoria)
+	// ==========================
+	// Renta
+	// ==========================
+	app.Get("/renta", rentaHandler.GetRenta)
+	app.Post("/renta", rentaHandler.CreateRenta)
+	app.Get("/renta/:id", rentaHandler.GetRentaByID)
+	app.Put("/renta/:id", rentaHandler.UpdateRenta)
+	app.Delete("/renta/:id", rentaHandler.DeleteRenta)
 
-	app.Post("/perfiles", perfilHandler.CreatePerfil)
-	app.Get("/perfiles", perfilHandler.GetPerfiles)
-	app.Get("/perfiles/:id", perfilHandler.GetPerfil)
-	app.Put("/perfiles/:id", perfilHandler.UpdatePerfil)
-	app.Delete("/perfiles/:id", perfilHandler.DeletePerfil)
+	// ==========================
+	// Categoría
+	// ==========================
+	app.Get("/categoria", categoriaHandler.GetCategoria)
+	app.Post("/categoria", categoriaHandler.CreateCategoria)
+	app.Get("/categoria/:id", categoriaHandler.GetCategoria)
+	app.Put("/categoria/:id", categoriaHandler.UpdateCategoria)
+	app.Delete("/categoria/:id", categoriaHandler.DeleteCategoria)
 
-	app.Get("/videojuegos", videojuegoHandler.GetVideojuegos)
-	app.Post("/videojuegos", videojuegoHandler.CreateVideojuego)
-	app.Get("/videojuegos/:id", videojuegoHandler.GetVideojuego)
-	app.Put("/videojuegos/:id", videojuegoHandler.UpdateVideojuego)
-	app.Delete("/videojuegos/:id", videojuegoHandler.DeleteVideojuego)
+	// ==========================
+	// Perfil
+	// ==========================
+	app.Get("/perfil", perfilHandler.GetPerfil)
+	app.Post("/perfil", perfilHandler.CreatePerfil)
+	app.Get("/perfil/:id", perfilHandler.GetPerfilByID)
+	app.Put("/perfil/:id", perfilHandler.UpdatePerfil)
+	app.Delete("/perfil/:id", perfilHandler.DeletePerfil)
 
+	// ==========================
+	// Videojuego
+	// ==========================
+	app.Get("/videojuego", videojuegoHandler.GetVideojuego)
+	app.Post("/videojuego", videojuegoHandler.CreateVideojuego)
+	app.Get("/videojuego/:id", videojuegoHandler.GetVideojuego)
+	app.Put("/videojuego/:id", videojuegoHandler.UpdateVideojuego)
+	app.Delete("/videojuego/:id", videojuegoHandler.DeleteVideojuego)
 
 }
