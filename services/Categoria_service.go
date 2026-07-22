@@ -1,40 +1,41 @@
 package services
 
 import (
-	"errors"
 	"gamerentapi/models"
 	"gamerentapi/repositories"
-
-	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type CategoriaService struct {
-    CategoriaRepository *repositories.CategoriaRepository
+	Repository *repositories.CategoriaRepository
 }
 
-func NewCategoriaService(repo *repositories.CategoriaRepository) *CategoriaService {
-    return &CategoriaService{CategoriaRepository: repo}
+func NewCategoriaService(repository *repositories.CategoriaRepository) *CategoriaService {
+	return &CategoriaService{
+		Repository: repository,
+	}
 }
 
+// Crear categoría
 func (s *CategoriaService) Create(categoria *models.Categoria) error {
-    if categoria.Nombre == "" {
-        return errors.New("el nombre es obligatorio")
-    }
-    return s.CategoriaRepository.Create(categoria)
+	return s.Repository.Create(categoria)
 }
 
-func (s *CategoriaService) FindAll() ([]*models.Categoria, error) {
-    return s.CategoriaRepository.FindAll()
+// Obtener todas
+func (s *CategoriaService) FindAll() ([]models.Categoria, error) {
+	return s.Repository.FindAll()
 }
 
-func (s *CategoriaService) FindByID(id bson.ObjectID) (*models.Categoria, error) {
-    return s.CategoriaRepository.FindByID(id)
+// Obtener por ID
+func (s *CategoriaService) FindByID(id string) (*models.Categoria, error) {
+	return s.Repository.FindByID(id)
 }
 
-func (s *CategoriaService) Update(id bson.ObjectID, categoria *models.Categoria) error {
-    return s.CategoriaRepository.Update(id, categoria)
+// Actualizar
+func (s *CategoriaService) Update(id string, categoria *models.Categoria) error {
+	return s.Repository.Update(id, categoria)
 }
 
-func (s *CategoriaService) Delete(id bson.ObjectID) error {
-    return s.CategoriaRepository.Delete(id)
+// Eliminar
+func (s *CategoriaService) Delete(id string) error {
+	return s.Repository.Delete(id)
 }

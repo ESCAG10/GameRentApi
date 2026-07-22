@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"time"
 
 	"gamerentapi/models"
 
@@ -11,57 +10,124 @@ import (
 )
 
 type UsuarioRepository struct {
-    Collection *mongo.Collection
+	Collection *mongo.Collection
 }
 
 func NewUsuarioRepository(collection *mongo.Collection) *UsuarioRepository {
-    return &UsuarioRepository{
-        Collection: collection,
-    }
+	return &UsuarioRepository{
+		Collection: collection,
+	}
 }
 
 func (r *UsuarioRepository) Create(usuario *models.Usuario) error {
-    // Inicializar FechaRegistro automáticamente
-    usuario.FechaRegistro = time.Now()
 
-    _, err := r.Collection.InsertOne(context.Background(), usuario)
-    return err
+	// Fecha automática de registro
+	//usuario.FechaRegistro = time.Now()
+
+	_, err := r.Collection.InsertOne(
+		context.Background(),
+		usuario,
+	)
+
+	return err
 }
 
-func (r *UsuarioRepository) FindAll() ([]*models.Usuario, error) {
-    cursor, err := r.Collection.Find(context.Background(), bson.M{})
-    if err != nil {
-        return nil, err
-    }
-    defer cursor.Close(context.Background())
+func (r *UsuarioRepository) FindAll() ([]models.Usuario, error) {
 
-    var usuario []*models.Usuario
-    if err = cursor.All(context.Background(), &usuario); err != nil {
-        return nil, err
-    }
+	cursor, err := r.Collection.Find(
+		context.Background(),
+		bson.M{},
+	)
 
-    return usuario, nil
+	if err != nil {
+		return nil, err
+	}
+
+	var usuario []models.Usuario
+
+	err = cursor.All(
+		context.Background(),
+		&usuario,
+	)
+
+	return usuario, err
 }
 
-func (r *UsuarioRepository) FindByID(id bson.ObjectID) (*models.Usuario, error) {
-    var usuario models.Usuario
-    err := r.Collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&usuario)
-    if err != nil {
-        return nil, err
-    }
-    return &usuario, nil
+func (r *UsuarioRepository) FindByID(id string) (*models.Usuario, error) {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var usuario models.Usuario
+
+	err = r.Collection.FindOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+	).Decode(&usuario)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &usuario, nil
 }
 
-func (r *UsuarioRepository) Update(id bson.ObjectID, usuario *models.Usuario) error {
-    _, err := r.Collection.UpdateOne(
-        context.Background(),
-        bson.M{"_id": id},
-        bson.M{"$set": usuario},
-    )
-    return err
+func (r *UsuarioRepository) Update(id string, usuario *models.Usuario,) error {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
+	if err != nil {
+		return err
+	}
+
+	// Recuperar la fecha original
+	existente, err := r.FindByID(id)
+
+	if err != nil {
+		return err
+	}
+
+	usuario.FechaRegistro = existente.FechaRegistro
+
+	_, err = r.Collection.UpdateOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+		bson.M{
+			"$set": bson.M{
+				"nombre":          usuario.Nombre,
+				"correo":          usuario.Correo,
+				"fechaRegistro":   usuario.FechaRegistro,
+				"passwordHash":    usuario.PasswordHash,
+				"rol":             usuario.Rol,
+				"activo":          usuario.Activo,
+			},
+		},
+	)
+
+	return err
 }
 
-func (r *UsuarioRepository) Delete(id bson.ObjectID) error {
-    _, err := r.Collection.DeleteOne(context.Background(), bson.M{"_id": id})
-    return err
+func (r *UsuarioRepository) Delete(id string) error {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = r.Collection.DeleteOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+	)
+
+	return err
 }

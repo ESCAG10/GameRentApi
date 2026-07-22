@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"time"
 
 	"gamerentapi/models"
 
@@ -11,54 +10,138 @@ import (
 )
 
 type PerfilRepository struct {
-    Collection *mongo.Collection
+	Collection *mongo.Collection
 }
 
 func NewPerfilRepository(collection *mongo.Collection) *PerfilRepository {
-    return &PerfilRepository{Collection: collection}
+	return &PerfilRepository{
+		Collection: collection,
+	}
 }
 
+// Crear perfil
 func (r *PerfilRepository) Create(perfil *models.Perfil) error {
-    perfil.FechaCreacion = time.Now()
-    perfil.FechaActualizacion = time.Now()
-    _, err := r.Collection.InsertOne(context.Background(), perfil)
-    return err
+
+	// Fechas automáticas
+	//ahora := time.Now()
+
+	//perfil.FechaCreacion = ahora
+	//perfil.FechaActualizacion = ahora
+
+	_, err := r.Collection.InsertOne(
+		context.Background(),
+		perfil,
+	)
+
+	return err
 }
 
-func (r *PerfilRepository) FindAll() ([]*models.Perfil, error) {
-    cursor, err := r.Collection.Find(context.Background(), bson.M{})
-    if err != nil {
-        return nil, err
-    }
-    defer cursor.Close(context.Background())
+// Obtener todos los perfiles
+func (r *PerfilRepository) FindAll() ([]models.Perfil, error) {
 
-    var perfiles []*models.Perfil
-    if err = cursor.All(context.Background(), &perfiles); err != nil {
-        return nil, err
-    }
-    return perfiles, nil
+	cursor, err := r.Collection.Find(
+		context.Background(),
+		bson.M{},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var perfiles []models.Perfil
+
+	err = cursor.All(
+		context.Background(),
+		&perfiles,
+	)
+
+	return perfiles, err
 }
 
-func (r *PerfilRepository) FindByID(id bson.ObjectID) (*models.Perfil, error) {
-    var perfil models.Perfil
-    err := r.Collection.FindOne(context.Background(), bson.M{"_id": id}).Decode(&perfil)
-    if err != nil {
-        return nil, err
-    }
-    return &perfil, nil
+// Obtener un perfil por ID
+func (r *PerfilRepository) FindByID(id string) (*models.Perfil, error) {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var perfil models.Perfil
+
+	err = r.Collection.FindOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+	).Decode(&perfil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &perfil, nil
 }
 
-func (r *PerfilRepository) Update(id bson.ObjectID, perfil *models.Perfil) error {
-    perfil.FechaActualizacion = time.Now()
-    _, err := r.Collection.UpdateOne(
-        context.Background(),
-        bson.M{"_id": id},
-        bson.M{"$set": perfil},
-    )
-    return err
+// Actualizar perfil
+func (r *PerfilRepository) Update(id string, perfil *models.Perfil,) error {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
+	if err != nil {
+		return err
+	}
+
+	// Recuperar el perfil existente
+	existente, err := r.FindByID(id)
+
+	if err != nil {
+		return err
+	}
+
+	// Mantener la fecha de creación
+	perfil.FechaCreacion = existente.FechaCreacion
+
+	// Actualizar la fecha de modificación
+	//perfil.FechaActualizacion = time.Now()
+
+	_, err = r.Collection.UpdateOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+		bson.M{
+			"$set": bson.M{
+				"usuarioId":          perfil.UsuarioID,
+				"nombre":             perfil.Nombre,
+				"direccion":          perfil.Direccion,
+				"telefono":           perfil.Telefono,
+				"nivelCliente":       perfil.NivelCliente,
+				"fotoPerfil":         perfil.FotoPerfil,
+				"fechaCreacion":      perfil.FechaCreacion,
+				"fechaActualizacion": perfil.FechaActualizacion,
+			},
+		},
+	)
+
+	return err
 }
 
-func (r *PerfilRepository) Delete(id bson.ObjectID) error {
-    _, err := r.Collection.DeleteOne(context.Background(), bson.M{"_id": id})
-    return err
+// Eliminar perfil
+func (r *PerfilRepository) Delete(id string) error {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = r.Collection.DeleteOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+	)
+
+	return err
 }
