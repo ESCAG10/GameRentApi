@@ -130,6 +130,8 @@ func (r *UsuarioRepository) Update(id string,usuario *models.Usuario,) error {
 
 				"fechaRegistro": usuario.FechaRegistro,
 
+				"fechaCreacion": usuario.FechaCreacion,
+
 				"fechaActualizacion": usuario.FechaActualizacion,
 
 				"passwordHash": usuario.PasswordHash,
