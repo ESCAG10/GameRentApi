@@ -52,7 +52,7 @@ func SetupRoutes(
 	// ==========================
 	app.Get("/categoria", categoriaHandler.GetCategoria)
 	app.Post("/categoria", categoriaHandler.CreateCategoria)
-	app.Get("/categoria/:id", categoriaHandler.GetCategoria)
+	app.Get("/categoria/:id", categoriaHandler.GetCategoriaByID)
 	app.Put("/categoria/:id", categoriaHandler.UpdateCategoria)
 	app.Delete("/categoria/:id", categoriaHandler.DeleteCategoria)
 
@@ -70,7 +70,7 @@ func SetupRoutes(
 	// ==========================
 	app.Get("/videojuego", videojuegoHandler.GetVideojuego)
 	app.Post("/videojuego", videojuegoHandler.CreateVideojuego)
-	app.Get("/videojuego/:id", videojuegoHandler.GetVideojuego)
+	app.Get("/videojuego/:id", videojuegoHandler.GetVideojuegoByID)
 	app.Put("/videojuego/:id", videojuegoHandler.UpdateVideojuego)
 	app.Delete("/videojuego/:id", videojuegoHandler.DeleteVideojuego)
 

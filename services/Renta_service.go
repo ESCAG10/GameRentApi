@@ -7,16 +7,23 @@ import (
 
 type RentaService struct {
 	Repository *repositories.RentaRepository
+	VideojuegoRepository *repositories.VideojuegoRepository
 }
 
-func NewRentaService(repository *repositories.RentaRepository) *RentaService {
+func NewRentaService(repository *repositories.RentaRepository, videojuegoRepository *repositories.VideojuegoRepository) *RentaService {
 	return &RentaService{
 		Repository: repository,
+		VideojuegoRepository: videojuegoRepository,
 	}
 }
 
 // Crear renta
 func (s *RentaService) Create(renta *models.Renta) error {
+	_, err := s.VideojuegoRepository.FindByID(renta.VideojuegoID.Hex())
+	if err != nil {
+		return err
+	}
+
 	return s.Repository.Create(renta)
 }
 

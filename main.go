@@ -63,7 +63,7 @@ func main() {
 	
 	rentaRepository := repositories.NewRentaRepository(rentaCollection,)
 	
-	rentaService := services.NewRentaService(rentaRepository,)
+	rentaService := services.NewRentaService(rentaRepository, videojuegoRepository)
 	
 	rentaHandler := handlers.NewRentaHandler(rentaService,)
 

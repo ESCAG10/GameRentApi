@@ -2,7 +2,7 @@ package repositories
 
 import (
 	"context"
-
+	"errors"
 	"gamerentapi/models"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -141,4 +141,28 @@ func (r *RentaRepository) Delete(id string) error {
 	)
 
 	return err
+}
+
+func (r *RentaRepository) ExisteRentaActiva(usuarioID, videojuegoID bson.ObjectID) (bool, error) {
+
+	var renta models.Renta
+
+	err := r.Collection.FindOne(
+		context.Background(),
+		bson.M{
+			"usuarioId":   usuarioID,
+			"videojuegoId": videojuegoID,
+			"estado":      "Activa",
+		},
+	).Decode(&renta)
+
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil 
+
 }
