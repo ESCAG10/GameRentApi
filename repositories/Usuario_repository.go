@@ -23,12 +23,6 @@ func NewUsuarioRepository(collection *mongo.Collection) *UsuarioRepository {
 // Crear usuario
 func (r *UsuarioRepository) Create(usuario *models.Usuario) error {
 
-	ahora := time.Now()
-
-	usuario.FechaRegistro = ahora
-	usuario.FechaCreacion = ahora
-	usuario.FechaActualizacion = ahora
-
 	_, err := r.Collection.InsertOne(
 		context.Background(),
 		usuario,
@@ -110,8 +104,12 @@ func (r *UsuarioRepository) Update(id string,usuario *models.Usuario,) error {
 	}
 
 
-	// Mantener fecha original
+	// Mantener fechas originales
 	usuario.FechaRegistro = existente.FechaRegistro
+	usuario.FechaCreacion = existente.FechaCreacion
+	
+	// Actualizar únicamente la fecha de modificación
+	usuario.FechaActualizacion = time.Now()
 
 
 	_, err = r.Collection.UpdateOne(
@@ -123,23 +121,15 @@ func (r *UsuarioRepository) Update(id string,usuario *models.Usuario,) error {
 
 		bson.M{
 			"$set": bson.M{
-
-				"nombre": usuario.Nombre,
-
-				"correo": usuario.Correo,
-
-				"fechaRegistro": usuario.FechaRegistro,
-
-				"fechaCreacion": usuario.FechaCreacion,
-
-				"fechaActualizacion": usuario.FechaActualizacion,
-
-				"passwordHash": usuario.PasswordHash,
-
-				"rol": usuario.Rol,
-
-				"activo": usuario.Activo,
-			},
+	"nombre": usuario.Nombre,
+	"correo": usuario.Correo,
+	"fechaRegistro": usuario.FechaRegistro,
+	"fechaCreacion": usuario.FechaCreacion,
+	"fechaActualizacion": usuario.FechaActualizacion,
+	"password": usuario.Password,
+	"rol": usuario.Rol,
+	"activo": usuario.Activo,
+},
 		},
 	)
 

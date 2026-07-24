@@ -57,7 +57,7 @@ func (h *UsuarioHandler) CreateUsuario(c *fiber.Ctx,) error {
 func (h *UsuarioHandler) GetUsuario(c *fiber.Ctx,) error {
 
 
-	usuarios, err := h.Service.FindAll()
+	usuario, err := h.Service.FindAll()
 
 	if err != nil {
 
@@ -69,7 +69,7 @@ func (h *UsuarioHandler) GetUsuario(c *fiber.Ctx,) error {
 	}
 
 
-	return c.JSON(usuarios)
+	return c.JSON(usuario)
 }
 
 
@@ -163,6 +163,41 @@ func (h *UsuarioHandler) DeleteUsuario(c *fiber.Ctx,) error {
 	return c.JSON(
 		fiber.Map{
 			"message": "Usuario eliminado correctamente",
+		},
+	)
+}
+
+func (h *UsuarioHandler) Login(c *fiber.Ctx) error {
+	var request struct {
+		Correo   string `json:"correo"`
+		Password string `json:"password"`
+	}
+
+	if err := c.BodyParser(&request); err != nil {
+		return c.Status(400).JSON(
+			fiber.Map{
+				"error": "Datos inválidos",
+			},
+		)
+	}
+
+	usuario, err := h.Service.Login(
+		request.Correo,
+		request.Password,
+	)
+
+	if err != nil {
+		return c.Status(401).JSON(
+			fiber.Map{
+				"error": "Credenciales inválidas",
+			},
+		)
+	}
+
+	return c.JSON(
+		fiber.Map{
+			"message": "Login exitoso",
+			"usuario": usuario,
 		},
 	)
 }

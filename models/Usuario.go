@@ -10,7 +10,7 @@ type Usuario struct {
     ID                 bson.ObjectID `bson:"_id,omitempty" json:"id"`
     Nombre             string        `bson:"nombre" json:"nombre"`
     Correo             string        `bson:"correo" json:"correo"`
-    PasswordHash       string        `bson:"passwordHash" json:"-"`
+    Password       string        `bson:"password" json:"-"`
     Rol                string        `bson:"rol" json:"rol"`
     Activo             bool          `bson:"activo" json:"activo"`
     FechaRegistro      time.Time     `bson:"fechaRegistro" json:"fechaRegistro"`
