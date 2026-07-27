@@ -23,6 +23,12 @@ func NewUsuarioRepository(collection *mongo.Collection) *UsuarioRepository {
 // Crear usuario
 func (r *UsuarioRepository) Create(usuario *models.Usuario) error {
 
+	ahora := time.Now()
+
+	usuario.FechaRegistro = ahora
+	usuario.FechaCreacion = ahora
+	usuario.FechaActualizacion = ahora
+
 	_, err := r.Collection.InsertOne(
 		context.Background(),
 		usuario,
@@ -113,25 +119,23 @@ func (r *UsuarioRepository) Update(id string,usuario *models.Usuario,) error {
 
 
 	_, err = r.Collection.UpdateOne(
-		context.Background(),
-
-		bson.M{
-			"_id": objectID,
+	context.Background(),
+	bson.M{
+		"_id": objectID,
+	},
+	bson.M{
+		"$set": bson.M{
+			"nombre":              usuario.Nombre,
+			"correo":              usuario.Correo,
+			"password":            usuario.Password,
+			"rol":                 usuario.Rol,
+			"activo":              usuario.Activo,
+			"fechaRegistro":       usuario.FechaRegistro,
+			"fechaCreacion":       usuario.FechaCreacion,
+			"fechaActualizacion":  usuario.FechaActualizacion,
 		},
-
-		bson.M{
-			"$set": bson.M{
-	"nombre": usuario.Nombre,
-	"correo": usuario.Correo,
-	"fechaRegistro": usuario.FechaRegistro,
-	"fechaCreacion": usuario.FechaCreacion,
-	"fechaActualizacion": usuario.FechaActualizacion,
-	"password": usuario.Password,
-	"rol": usuario.Rol,
-	"activo": usuario.Activo,
-},
-		},
-	)
+	},
+)
 
 
 	return err

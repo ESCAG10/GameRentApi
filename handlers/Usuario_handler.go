@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"gamerentapi/models"
 	"gamerentapi/services"
 
@@ -24,29 +25,36 @@ func NewUsuarioHandler(service *services.UsuarioService,) *UsuarioHandler {
 // Crear usuario
 func (h *UsuarioHandler) CreateUsuario(c *fiber.Ctx,) error {
 
+	fmt.Println(string(c.Body()))
 
-	var usuario models.Usuario
+var usuario models.Usuario
 
+if err := c.BodyParser(&usuario); err != nil {
 
-	if err := c.BodyParser(&usuario); err != nil {
+    return c.Status(400).JSON(
+        fiber.Map{
+            "error": err.Error(),
+        },
+    )
+}
 
-		return c.Status(400).JSON(
-			fiber.Map{
-				"error": "Datos inválidos",
-			},
-		)
-	}
+fmt.Println("===== STRUCT USUARIO =====")
+fmt.Printf("%+v\n", usuario)
+fmt.Println("Nombre:", usuario.Nombre)
+fmt.Println("Correo:", usuario.Correo)
+fmt.Println("Password:", usuario.Password)
+fmt.Println("Rol:", usuario.Rol)
+fmt.Println("Activo:", usuario.Activo)
+fmt.Println("==========================")
 
+if err := h.Service.Create(&usuario); err != nil {
 
-	if err := h.Service.Create(&usuario); err != nil {
-
-		return c.Status(500).JSON(
-			fiber.Map{
-				"error": err.Error(),
-			},
-		)
-	}
-
+    return c.Status(500).JSON(
+        fiber.Map{
+            "error": err.Error(),
+        },
+    )
+}
 
 	return c.Status(201).JSON(usuario)
 }
@@ -111,12 +119,12 @@ func (h *UsuarioHandler) UpdateUsuario(c *fiber.Ctx,) error {
 
 	if err := c.BodyParser(&usuario); err != nil {
 
-		return c.Status(400).JSON(
-			fiber.Map{
-				"error": "Datos inválidos",
-			},
-		)
-	}
+    return c.Status(400).JSON(
+        fiber.Map{
+            "error": err.Error(),
+        },
+    )
+}
 
 
 	if err := h.Service.Update(

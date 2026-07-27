@@ -22,6 +22,7 @@ func NewUsuarioService(repository *repositories.UsuarioRepository,) *UsuarioServ
 
 // Crear usuario
 func (s *UsuarioService) Create(usuario *models.Usuario,) error {
+	
 
 	if usuario.Nombre == "" {
 		return  errors.New("el nombre es obligatorio")
@@ -38,6 +39,7 @@ func (s *UsuarioService) Create(usuario *models.Usuario,) error {
 	if usuario.Rol == "" {
 		usuario.Rol = "cliente"
 	}
+
 
 	return s.Repository.Create(usuario)
 }
