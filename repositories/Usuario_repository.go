@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"gamerentapi/models"
@@ -23,18 +24,20 @@ func NewUsuarioRepository(collection *mongo.Collection) *UsuarioRepository {
 // Crear usuario
 func (r *UsuarioRepository) Create(usuario *models.Usuario) error {
 
-	ahora := time.Now()
+    ahora := time.Now()
 
-	usuario.FechaRegistro = ahora
-	usuario.FechaCreacion = ahora
-	usuario.FechaActualizacion = ahora
+    usuario.FechaRegistro = ahora
+    usuario.FechaCreacion = ahora
+    usuario.FechaActualizacion = ahora
 
-	_, err := r.Collection.InsertOne(
-		context.Background(),
-		usuario,
-	)
+    _, err := r.Collection.InsertOne(
+        context.Background(),
+        usuario,
+    )
 
-	return err
+	fmt.Println("ERROR INSERT:", err)
+
+    return err
 }
 
 

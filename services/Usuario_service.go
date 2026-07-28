@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 	"gamerentapi/models"
 	"gamerentapi/repositories"
 )
@@ -40,6 +41,9 @@ func (s *UsuarioService) Create(usuario *models.Usuario,) error {
 		usuario.Rol = "cliente"
 	}
 
+	err := s.Repository.Create(usuario)
+
+	fmt.Println("SERVICE ERROR:", err)
 
 	return s.Repository.Create(usuario)
 }
