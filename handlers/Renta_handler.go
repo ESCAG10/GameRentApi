@@ -5,6 +5,7 @@ import (
 	"gamerentapi/services"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type RentaHandler struct {
@@ -19,21 +20,48 @@ func NewRentaHandler(service *services.RentaService) *RentaHandler {
 
 // Crear renta
 func (h *RentaHandler) CreateRenta(c *fiber.Ctx) error {
-	var renta models.Renta
 
-	if err := c.BodyParser(&renta); err != nil {
-		return c.Status(400).JSON(fiber.Map{
-			"error": "Datos inválidos",
-		})
-	}
+    var body map[string]interface{}
 
-	if err := h.Service.Create(&renta); err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
+    if err := c.BodyParser(&body); err != nil {
+        return c.Status(400).JSON(fiber.Map{
+            "error": err.Error(),
+        })
+    }
 
-	return c.Status(201).JSON(renta)
+    usuarioID, err := bson.ObjectIDFromHex(body["usuarioId"].(string))
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"error": "usuarioId inválido"})
+    }
+
+    videojuegoID, err := bson.ObjectIDFromHex(body["videojuegoId"].(string))
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"error": "videojuegoId inválido"})
+    }
+
+    categoriaID, err := bson.ObjectIDFromHex(body["categoriaId"].(string))
+    if err != nil {
+        return c.Status(400).JSON(fiber.Map{"error": "categoriaId inválido"})
+    }
+
+    renta := models.Renta{
+        UsuarioID: usuarioID,
+        VideojuegoID: videojuegoID,
+        CategoriaID: categoriaID,
+        FechaRenta: body["fechaRenta"].(string),
+        PeriodoRenta: int(body["periodoRenta"].(float64)),
+        FechaEntrega: body["fechaEntrega"].(string),
+        Estado: body["estado"].(string),
+        Activo: body["activo"].(bool),
+    }
+
+    if err := h.Service.Create(&renta); err != nil {
+        return c.Status(500).JSON(fiber.Map{
+            "error": err.Error(),
+        })
+    }
+
+    return c.Status(201).JSON(renta)
 }
 
 // Obtener todas las rentas
