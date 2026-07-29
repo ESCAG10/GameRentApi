@@ -30,12 +30,17 @@ func (r *UsuarioRepository) Create(usuario *models.Usuario) error {
     usuario.FechaCreacion = ahora
     usuario.FechaActualizacion = ahora
 
-    _, err := r.Collection.InsertOne(
-        context.Background(),
-        usuario,
-    )
 
-	fmt.Println("ERROR INSERT:", err)
+	res, err := r.Collection.InsertOne(context.Background(), usuario)
+	if err != nil {
+    return err
+}
+
+// Aquí res.InsertedID es el ObjectID generado por MongoDB
+fmt.Println("Nuevo ID:", res.InsertedID)
+
+usuario.ID = res.InsertedID.(bson.ObjectID)
+
 
     return err
 }
