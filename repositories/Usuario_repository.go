@@ -40,7 +40,7 @@ func (r *UsuarioRepository) Create(usuario *models.Usuario) error {
 fmt.Println("Nuevo ID:", res.InsertedID)
 
 usuario.ID = res.InsertedID.(bson.ObjectID)
-
+//usuario.IDString = usuario.ID.Hex() // convierte ObjectID a string
 
     return err
 }

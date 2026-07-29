@@ -8,6 +8,7 @@ import (
 
 type Usuario struct {
 	ID                 bson.ObjectID `bson:"_id,omitempty" json:"id"`
+	//IDString           string        `json:"id"`
 	Nombre             string        `bson:"nombre" json:"nombre"`
 	Correo             string        `bson:"correo" json:"correo"`
 	Password           string        `bson:"password" json:"password"`

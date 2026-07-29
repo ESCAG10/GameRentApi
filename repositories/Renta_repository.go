@@ -61,7 +61,6 @@ func (r *RentaRepository) FindAll() ([]models.Renta, error) {
 func (r *RentaRepository) FindByID(id string) (*models.Renta, error) {
 
 	objectID, err := bson.ObjectIDFromHex(id)
-
 	if err != nil {
 		return nil, err
 	}
@@ -165,4 +164,28 @@ func (r *RentaRepository) ExisteRentaActiva(usuarioID, videojuegoID bson.ObjectI
 
 	return true, nil 
 
+}
+
+func (r *RentaRepository) FindByUsuarioID(usuarioID string) ([]models.Renta, error) {
+	objectID, err := bson.ObjectIDFromHex(usuarioID)
+	if err != nil {
+		return nil, err
+	}
+
+	cursor, err := r.Collection.Find(
+		context.Background(),
+		bson.M{"usuarioId": objectID},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var rentas []models.Renta
+
+	err = cursor.All(context.Background(), &rentas)
+	if err != nil {
+		return nil, err
+	}
+
+	return rentas, nil
 }

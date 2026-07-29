@@ -43,6 +43,8 @@ func SetupRoutes(
 	// ==========================
 	app.Get("/renta", rentaHandler.GetRenta)
 	app.Post("/renta", rentaHandler.CreateRenta)
+	app.Get("renta/usuario/:id", rentaHandler.GetRentasByUsuarioID)
+	app.Get("/renta/:id", rentaHandler.GetRenta)
 	app.Get("/renta/:id", rentaHandler.GetRentaByID)
 	app.Put("/renta/:id", rentaHandler.UpdateRenta)
 	app.Delete("/renta/:id", rentaHandler.DeleteRenta)

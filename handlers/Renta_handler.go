@@ -19,7 +19,6 @@ func NewRentaHandler(service *services.RentaService) *RentaHandler {
 
 // Crear renta
 func (h *RentaHandler) CreateRenta(c *fiber.Ctx) error {
-
 	var renta models.Renta
 
 	if err := c.BodyParser(&renta); err != nil {
@@ -39,25 +38,21 @@ func (h *RentaHandler) CreateRenta(c *fiber.Ctx) error {
 
 // Obtener todas las rentas
 func (h *RentaHandler) GetRenta(c *fiber.Ctx) error {
-
-	renta, err := h.Service.FindAll()
-
+	rentas, err := h.Service.FindAll()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
 
-	return c.JSON(renta)
+	return c.JSON(rentas)
 }
 
-// Obtener renta por ID
+// Obtener renta por ID (_id de la renta)
 func (h *RentaHandler) GetRentaByID(c *fiber.Ctx) error {
-
 	id := c.Params("id")
 
 	renta, err := h.Service.FindByID(id)
-
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{
 			"error": "Renta no encontrada",
@@ -67,9 +62,28 @@ func (h *RentaHandler) GetRentaByID(c *fiber.Ctx) error {
 	return c.JSON(renta)
 }
 
+// Obtener rentas por usuario ID
+func (h *RentaHandler) GetRentasByUsuarioID(c *fiber.Ctx) error {
+	usuarioID := c.Params("id")
+
+	rentas, err := h.Service.FindByUsuarioID(usuarioID)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	if len(rentas) == 0 {
+		return c.Status(404).JSON(fiber.Map{
+			"error": "No se encontraron rentas para este usuario",
+		})
+	}
+
+	return c.JSON(rentas)
+}
+
 // Actualizar renta
 func (h *RentaHandler) UpdateRenta(c *fiber.Ctx) error {
-
 	id := c.Params("id")
 
 	var renta models.Renta
@@ -93,7 +107,6 @@ func (h *RentaHandler) UpdateRenta(c *fiber.Ctx) error {
 
 // Eliminar renta
 func (h *RentaHandler) DeleteRenta(c *fiber.Ctx) error {
-
 	id := c.Params("id")
 
 	if err := h.Service.Delete(id); err != nil {
