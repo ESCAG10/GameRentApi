@@ -191,7 +191,8 @@ if err != nil {
 return nil, err
 }
 
-if usuario.Password != password{return nil, errors.New("Contraseña incorrecta")}
+if usuario.Password != password{
+	return nil, errors.New("Contraseña incorrecta")}
 
 return &usuario, nil
 }
