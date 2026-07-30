@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -171,4 +172,26 @@ func (r *UsuarioRepository) Delete(id string) error {
 
 
 	return err
+}
+
+// Login
+func (r *UsuarioRepository) Login(correo, password string) (*models.Usuario, error) {
+
+var usuario models.Usuario
+
+err := r.Collection.FindOne(
+context.Background(),
+bson.M{
+"correo": correo,
+"password": password,
+},
+).Decode(&usuario)
+
+if err != nil {
+return nil, err
+}
+
+if usuario.Password != password{return nil, errors.New("Contraseña incorrecta")}
+
+return &usuario, nil
 }

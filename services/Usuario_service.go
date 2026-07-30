@@ -84,5 +84,5 @@ func (s *UsuarioService) Login(correo, password string) (*models.Usuario, error)
 		return nil, errors.New("correo y contraseña son obligatorios")
 	}
 
-	return s.Repository.FindByID(correo)
+	return s.Repository.Login(correo, password)
 }

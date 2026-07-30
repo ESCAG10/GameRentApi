@@ -27,7 +27,7 @@ func SetupRoutes(
 	// ==========================
 	// Login
 	// ==========================
-	//app.Post("/login", usuarioHandler.Login)
+	app.Post("/login", usuarioHandler.Login)
 
 	// ==========================
 	// Usuario
