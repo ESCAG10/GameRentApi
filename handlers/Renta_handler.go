@@ -135,6 +135,7 @@ func (h *RentaHandler) UpdateRenta(c *fiber.Ctx) error {
 
 // Eliminar renta
 func (h *RentaHandler) DeleteRenta(c *fiber.Ctx) error {
+
 	id := c.Params("id")
 
 	if err := h.Service.Delete(id); err != nil {

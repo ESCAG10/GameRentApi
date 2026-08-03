@@ -127,19 +127,27 @@ func (r *RentaRepository) Update(id string, renta *models.Renta,) error {
 func (r *RentaRepository) Delete(id string) error {
 
 	objectID, err := bson.ObjectIDFromHex(id)
-
+	
 	if err != nil {
 		return err
 	}
 
-	_, err = r.Collection.DeleteOne(
+	result, err := r.Collection.DeleteOne(
 		context.Background(),
 		bson.M{
 			"_id": objectID,
 		},
 	)
 
-	return err
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return errors.New("renta no encontrada")
+	}
+
+	return nil
 }
 
 func (r *RentaRepository) ExisteRentaActiva(usuarioID, videojuegoID bson.ObjectID) (bool, error) {
