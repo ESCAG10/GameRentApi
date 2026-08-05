@@ -199,73 +199,69 @@ func (r *RentaRepository) Update(id string, renta *models.Renta) error {
 
 // Eliminar renta y regresar stock
 func (r *RentaRepository) Delete(id string) error {
-
-objectID, err := bson.ObjectIDFromHex(id)
-
-if err != nil {
-return err
-}
-
-
-// Buscar la renta antes de eliminarla
-var renta models.Renta
-
-err = r.Collection.FindOne(
-context.Background(),
-bson.M{
-"_id": objectID,
-},
-).Decode(&renta)
-
-
-if err != nil {
-return errors.New("renta no encontrada")
-}
-
-
-
-// Aumentar stock del videojuego
-_, err = config.Database.Collection("videojuego").UpdateOne(
-context.Background(),
-bson.M{
-"_id": renta.VideojuegoID,
-},
-bson.M{
-"$inc": bson.M{
-"stock": 1,
-},
-},
-)
-
-
-if err != nil {
-return err
-}
-
-
-
-// Eliminar renta
-result, err := r.Collection.DeleteOne(
-context.Background(),
-bson.M{
-"_id": objectID,
-},
-)
-
-
-if err != nil {
-return err
-}
-
-
-if result.DeletedCount == 0 {
-
-return errors.New("no se pudo eliminar la renta")
-
-}
-
-
-return nil
+	
+	objectID, err := bson.ObjectIDFromHex(id)
+	
+	if err != nil {
+		return err
+	}
+	
+	// Buscar la renta antes de eliminarla
+	
+	var renta models.Renta
+	
+	err = r.Collection.FindOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+	).Decode(&renta)
+		
+		
+		if err != nil {
+			return errors.New("renta no encontrada")
+		}
+		
+		// Aumentar stock del videojuego
+		
+		_, err = config.Database.Collection("videojuego").UpdateOne(
+			context.Background(),
+			bson.M{
+				"_id": renta.VideojuegoID,
+			},
+			bson.M{
+				"$inc": bson.M{
+					"stock": 1,
+				},
+			},
+		)
+		
+		
+		if err != nil {
+			return err
+		}
+		
+		// Eliminar renta
+		result, err := r.Collection.DeleteOne(
+			context.Background(),
+			bson.M{
+				"_id": objectID,
+			},
+		)
+		
+		
+		if err != nil {
+			return err
+		}
+		
+		
+		if result.DeletedCount == 0 {
+			
+			return errors.New("no se pudo eliminar la renta")
+		
+		}
+		
+	return nil
 }
 
 // Verificar si el usuario ya tiene ese videojuego rentado

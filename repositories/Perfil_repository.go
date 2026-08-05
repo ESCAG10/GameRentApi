@@ -145,3 +145,27 @@ func (r *PerfilRepository) Delete(id string) error {
 
 	return err
 }
+
+func (r *PerfilRepository) FindByUsuarioID(usuarioID string) (*models.Perfil, error) {
+
+	objectID, err := bson.ObjectIDFromHex(usuarioID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var perfil models.Perfil
+
+	err = r.Collection.FindOne(
+		context.Background(),
+		bson.M{
+			"usuarioId": objectID,
+		},
+	).Decode(&perfil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &perfil, nil
+}

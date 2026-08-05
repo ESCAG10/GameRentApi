@@ -30,32 +30,32 @@ func (h *UsuarioHandler) CreateUsuario(c *fiber.Ctx,) error {
 	var usuario models.Usuario
 	
 	if err := c.BodyParser(&usuario); err != nil {
-
-    return c.Status(400).JSON(
-        fiber.Map{
-            "error": err.Error(),
-        },
-    )
-}
-
-fmt.Println("===== STRUCT USUARIO =====")
-fmt.Printf("%+v\n", usuario)
-fmt.Println("Nombre:", usuario.Nombre)
-fmt.Println("Correo:", usuario.Correo)
-fmt.Println("Password:", usuario.Password)
-fmt.Println("Rol:", usuario.Rol)
-fmt.Println("Activo:", usuario.Activo)
-fmt.Println("==========================")
-
-if err := h.Service.Create(&usuario); err != nil {
-
-    return c.Status(500).JSON(
-        fiber.Map{
-            "error": err.Error(),
-        },
-    )
-}
-
+		
+		return c.Status(400).JSON(
+			fiber.Map{
+				"error": err.Error(),
+			},
+		)
+	}
+	
+	fmt.Println("===== STRUCT USUARIO =====")
+	fmt.Printf("%+v\n", usuario)
+	fmt.Println("Nombre:", usuario.Nombre)
+	fmt.Println("Correo:", usuario.Correo)
+	fmt.Println("Password:", usuario.Password)
+	fmt.Println("Rol:", usuario.Rol)
+	fmt.Println("Activo:", usuario.Activo)
+	fmt.Println("==========================")
+	
+	if err := h.Service.Create(&usuario); err != nil {
+		
+		return c.Status(500).JSON(
+			fiber.Map{
+				"error": err.Error(),
+			},
+		)
+	}
+	
 	return c.Status(201).JSON(usuario)
 }
 
