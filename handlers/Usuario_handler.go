@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gamerentapi/models"
 	"gamerentapi/services"
+	"gamerentapi/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -93,12 +94,14 @@ func (h *UsuarioHandler) GetUsuarioByID(c *fiber.Ctx,) error {
 
 	id := c.Params("id")
 
+	if !utils.ValidarObjectID(id) {
+		return utils.Error(c, 400, "ID inválido")
+	}
 
 	usuario, err := h.Service.FindByID(id)
 	
 	if err != nil {
 
-		
 
 		return c.Status(404).JSON(
 			fiber.Map{
@@ -121,6 +124,9 @@ func (h *UsuarioHandler) UpdateUsuario(c *fiber.Ctx,) error {
 
 	id := c.Params("id")
 
+	if !utils.ValidarObjectID(id) {
+		return utils.Error(c, 400, "ID inválido")
+	}
 
 	var usuario models.Usuario
 
@@ -163,6 +169,10 @@ func (h *UsuarioHandler) DeleteUsuario(c *fiber.Ctx,) error {
 
 
 	id := c.Params("id")
+
+	if !utils.ValidarObjectID(id) {
+		return utils.Error(c, 400, "ID inválido")
+	}
 
 
 	if err := h.Service.Delete(id); err != nil {

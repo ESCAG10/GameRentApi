@@ -3,6 +3,7 @@ package handlers
 import (
 	"gamerentapi/models"
 	"gamerentapi/services"
+	"gamerentapi/utils"
 
 	"time"
 
@@ -117,6 +118,11 @@ func (h *RentaHandler) GetRentasByUsuarioID(c *fiber.Ctx) error {
 
 	id := c.Params("id")
 
+	if !utils.ValidarObjectID(id) {
+		return utils.Error(c, 400, "Renta inválida")
+	}
+
+
 	rentas, err := h.Service.FindByUsuarioID(id)
 
 
@@ -134,6 +140,11 @@ func (h *RentaHandler) GetRentasByUsuarioID(c *fiber.Ctx) error {
 // Actualizar renta
 func (h *RentaHandler) UpdateRenta(c *fiber.Ctx) error {
 	id := c.Params("id")
+
+	if !utils.ValidarObjectID(id) {
+		return utils.Error(c, 400, "Renta inválida")
+	}
+
 
 	var renta models.Renta
 
@@ -177,6 +188,10 @@ func (h *RentaHandler) DevolverRenta(c *fiber.Ctx) error {
 func (h *RentaHandler) DeleteRenta(c *fiber.Ctx) error {
 
 	id := c.Params("id")
+
+	if !utils.ValidarObjectID(id) {
+		return utils.Error(c, 400, "Renta inválida")
+	}
 
 	if err := h.Service.Delete(id); err != nil {
 		return c.Status(500).JSON(fiber.Map{
