@@ -40,19 +40,16 @@ func (h *VideojuegoHandler) CreateVideojuego(c *fiber.Ctx) error {
 // Obtener todos los videojuegos
 func (h *VideojuegoHandler) GetVideojuego(c *fiber.Ctx) error {
 
-	videojuegos, err := h.Service.FindAll()
+	videojuego, err := h.Service.FindAll()
 
 	if err != nil {
-		return c.Status(500).JSON(
-			fiber.Map{
-				"error": err.Error(),
-			},
-		)
+		return c.Status(500).JSON(fiber.Map{
+			"error": err.Error(),
+		})
 	}
 
-	return c.JSON(videojuegos)
+	return c.JSON(videojuego)
 }
-
 
 // Obtener videojuego por ID
 func (h *VideojuegoHandler) GetVideojuegoByID(c *fiber.Ctx) error {

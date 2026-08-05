@@ -49,7 +49,6 @@ app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
 	app.Get("/renta/usuario/:id", rentaHandler.GetRentasByUsuarioID)
 	app.Get("/renta/:id", rentaHandler.GetRentaByID)
 	app.Put("/renta/:id", rentaHandler.UpdateRenta)
-	app.Put("/renta/:id/devolver", rentaHandler.DevolverRenta)
 	app.Delete("/renta/:id", rentaHandler.DeleteRenta)
 
 	// ==========================

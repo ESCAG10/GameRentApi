@@ -134,30 +134,6 @@ func (r *RentaRepository) Update(id string, renta *models.Renta,) error {
 	return err
 }
 
-func (r *RentaRepository) Devolver(id string) error {
-
-	objectID, err := bson.ObjectIDFromHex(id)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = r.Collection.UpdateOne(
-		context.Background(),
-		bson.M{
-			"_id": objectID,
-		},
-		bson.M{
-			"$set": bson.M{
-				"estado": "Devuelta",
-				"fechaActualizacion": time.Now(),
-			},
-		},
-	)
-
-	return err
-}
-
 // Eliminar renta
 func (r *RentaRepository) Delete(id string) error {
 

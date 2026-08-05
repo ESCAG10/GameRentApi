@@ -45,7 +45,13 @@ func (s *RentaService) Create(renta *models.Renta) error {
 	if existe {
 		return errors.New("ya existe una renta activa para este videojuego")
 	}
-	
+
+	if err := s.VideojuegoRepository.DecreaseStock(
+		renta.VideojuegoID.Hex(),
+	); err != nil {
+		return err
+	}
+
 	return s.Repository.Create(renta)
 }
 
@@ -84,36 +90,6 @@ func (s *RentaService) Update(id string, renta *models.Renta) error {
 	}
 
 	return s.Repository.Update(id, renta)
-}
-
-func (s *RentaService) Devolver(id string) error {
-
-	renta, err := s.Repository.FindByID(id)
-
-	if err != nil {
-		return err
-	}
-
-	videojuego, err := s.VideojuegoRepository.FindByID(
-		renta.VideojuegoID.Hex(),
-	)
-
-	if err != nil {
-		return err
-	}
-
-	videojuego.Stock++
-
-	err = s.VideojuegoRepository.Update(
-		videojuego.ID.Hex(),
-		videojuego,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	return s.Repository.Devolver(id)
 }
 
 // Eliminar renta

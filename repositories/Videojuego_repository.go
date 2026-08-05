@@ -54,10 +54,9 @@ func (r *VideojuegoRepository) FindAll() ([]models.Videojuego, error) {
 		context.Background(),
 		&videojuegos,
 	)
-	
+
 	return videojuegos, err
 }
-
 
 // Obtener videojuego por ID
 func (r *VideojuegoRepository) FindByID(id string) (*models.Videojuego, error) {
@@ -144,5 +143,27 @@ func (r *VideojuegoRepository) Delete(id string) error {
 	)
 
 	return err
+}
 
+func (r *VideojuegoRepository) DecreaseStock(id string) error {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = r.Collection.UpdateOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+		bson.M{
+			"$inc": bson.M{
+				"stock": -1,
+			},
+		},
+	)
+
+	return err
 }
