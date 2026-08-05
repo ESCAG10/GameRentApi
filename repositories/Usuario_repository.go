@@ -196,3 +196,37 @@ if usuario.Password != password{
 
 return &usuario, nil
 }
+
+func (r *UsuarioRepository) FindByCorreo(correo string) (*models.Usuario, error) {
+
+	var usuario models.Usuario
+
+	err := r.Collection.FindOne(
+		context.Background(),
+		bson.M{
+			"correo": correo,
+		},
+	).Decode(&usuario)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &usuario, nil
+}
+
+func (r *UsuarioRepository) ExisteCorreo(correo string) (bool, error) {
+
+	count, err := r.Collection.CountDocuments(
+		context.Background(),
+		bson.M{
+			"correo": correo,
+		},
+	)
+
+	if err != nil {
+		return false, err
+	}
+
+	return count > 0, nil
+}

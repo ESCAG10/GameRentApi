@@ -5,6 +5,8 @@ import (
 	"errors"
 	"gamerentapi/models"
 
+	"time"
+
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -22,10 +24,18 @@ func NewRentaRepository(collection *mongo.Collection) *RentaRepository {
 // Crear renta
 func (r *RentaRepository) Create(renta *models.Renta) error {
 
-	//ahora := time.Now()
+	ahora := time.Now()
 
-	//renta.FechaCreacion = ahora
-	//renta.FechaActualizacion = ahora
+	if renta.FechaRenta.IsZero() {
+		renta.FechaRenta = ahora
+	}
+
+	if renta.FechaEntrega.IsZero() {
+		renta.FechaEntrega = ahora.AddDate(0, 0, renta.PeriodoRenta)
+	}
+
+	renta.FechaCreacion = ahora
+	renta.FechaActualizacion = ahora
 
 	_, err := r.Collection.InsertOne(
 		context.Background(),
@@ -91,13 +101,14 @@ func (r *RentaRepository) Update(id string, renta *models.Renta,) error {
 	}
 
 	existente, err := r.FindByID(id)
-
+	
 	if err != nil {
 		return err
 	}
-
+	
+	renta.FechaRenta = existente.FechaRenta
 	renta.FechaCreacion = existente.FechaCreacion
-	//renta.FechaActualizacion = time.Now()
+	renta.FechaActualizacion = time.Now()
 
 	_, err = r.Collection.UpdateOne(
 		context.Background(),
@@ -123,11 +134,35 @@ func (r *RentaRepository) Update(id string, renta *models.Renta,) error {
 	return err
 }
 
+func (r *RentaRepository) Devolver(id string) error {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = r.Collection.UpdateOne(
+		context.Background(),
+		bson.M{
+			"_id": objectID,
+		},
+		bson.M{
+			"$set": bson.M{
+				"estado": "Devuelta",
+				"fechaActualizacion": time.Now(),
+			},
+		},
+	)
+
+	return err
+}
+
 // Eliminar renta
 func (r *RentaRepository) Delete(id string) error {
 
 	objectID, err := bson.ObjectIDFromHex(id)
-	
+
 	if err != nil {
 		return err
 	}
@@ -159,7 +194,7 @@ func (r *RentaRepository) ExisteRentaActiva(usuarioID, videojuegoID bson.ObjectI
 		bson.M{
 			"usuarioId":   usuarioID,
 			"videojuegoId": videojuegoID,
-			"estado":      "Activa",
+			"estado":      "Activo",
 		},
 	).Decode(&renta)
 
@@ -174,26 +209,48 @@ func (r *RentaRepository) ExisteRentaActiva(usuarioID, videojuegoID bson.ObjectI
 
 }
 
-func (r *RentaRepository) FindByUsuarioID(usuarioID string) ([]models.Renta, error) {
-	objectID, err := bson.ObjectIDFromHex(usuarioID)
+func (r *RentaRepository) FindByUsuarioID(id string) ([]models.Renta, error) {
+
+	objectID, err := bson.ObjectIDFromHex(id)
+
 	if err != nil {
 		return nil, err
 	}
 
 	cursor, err := r.Collection.Find(
 		context.Background(),
-		bson.M{"usuarioId": objectID},
+		bson.M{
+			"usuarioId": objectID,
+		},
 	)
+
 	if err != nil {
 		return nil, err
 	}
 
 	var rentas []models.Renta
 
-	err = cursor.All(context.Background(), &rentas)
-	if err != nil {
-		return nil, err
-	}
+	err = cursor.All(
+		context.Background(),
+		&rentas,
+	)
 
-	return rentas, nil
+	return rentas, err
+}
+
+func (r *VideojuegoRepository) IncrementarStock(id bson.ObjectID) error {
+
+	_, err := r.Collection.UpdateOne(
+		context.Background(),
+		bson.M{
+			"_id": id,
+		},
+		bson.M{
+			"$inc": bson.M{
+				"stock": 1,
+			},
+		},
+	)
+
+	return err
 }

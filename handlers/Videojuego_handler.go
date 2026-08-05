@@ -51,6 +51,21 @@ func (h *VideojuegoHandler) GetVideojuego(c *fiber.Ctx) error {
 	return c.JSON(videojuego)
 }
 
+func (h *VideojuegoHandler) GetVideojuegoActivos(c *fiber.Ctx) error {
+
+	videojuego, err := h.Service.FindActivos()
+
+	if err != nil {
+		return c.Status(500).JSON(
+			fiber.Map{
+				"error": err.Error(),
+			},
+		)
+	}
+
+	return c.JSON(videojuego)
+}
+
 // Obtener videojuego por ID
 func (h *VideojuegoHandler) GetVideojuegoByID(c *fiber.Ctx) error {
 
@@ -95,6 +110,14 @@ func (h *VideojuegoHandler) UpdateVideojuego(c *fiber.Ctx) error {
 func (h *VideojuegoHandler) DeleteVideojuego(c *fiber.Ctx) error {
 
 	id := c.Params("id")
+
+	if err := h.Service.Delete(id); err != nil {
+	return c.Status(404).JSON(
+		fiber.Map{
+			"error": "Videojuego no encontrado",
+		},
+	)
+}
 
 	if err := h.Service.Delete(id); err != nil {
 		return c.Status(500).JSON(fiber.Map{

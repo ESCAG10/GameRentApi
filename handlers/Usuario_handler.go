@@ -49,14 +49,17 @@ fmt.Println("==========================")
 
 if err := h.Service.Create(&usuario); err != nil {
 
-    return c.Status(500).JSON(
-        fiber.Map{
-            "error": err.Error(),
-        },
-    )
+	return c.Status(500).JSON(
+		fiber.Map{
+			"error": err.Error(),
+		},
+	)
 }
 
-	return c.Status(201).JSON(usuario)
+// No devolver la contraseña
+usuario.Password = ""
+
+return c.Status(201).JSON(usuario)
 }
 
 
@@ -64,8 +67,7 @@ if err := h.Service.Create(&usuario); err != nil {
 // Obtener todos los usuarios
 func (h *UsuarioHandler) GetUsuario(c *fiber.Ctx,) error {
 
-
-	usuario, err := h.Service.FindAll()
+	usuarios, err := h.Service.FindAll()
 
 	if err != nil {
 
@@ -76,8 +78,11 @@ func (h *UsuarioHandler) GetUsuario(c *fiber.Ctx,) error {
 		)
 	}
 
+	for i := range usuarios {
+		usuarios[i].Password = ""
+	}
 
-	return c.JSON(usuario)
+	return c.Status(200).JSON(usuarios)
 }
 
 
@@ -90,19 +95,22 @@ func (h *UsuarioHandler) GetUsuarioByID(c *fiber.Ctx,) error {
 
 
 	usuario, err := h.Service.FindByID(id)
-
-
+	
 	if err != nil {
+
+		
 
 		return c.Status(404).JSON(
 			fiber.Map{
-				"error": "Usuario no encontrado",
+				"error": err.Error(),
 			},
 		)
 	}
 
+	// No devolver la contraseña
+	usuario.Password = ""
 
-	return c.JSON(usuario)
+	return c.Status(200).JSON(usuario)
 }
 
 
@@ -205,7 +213,12 @@ func (h *UsuarioHandler) Login(c *fiber.Ctx) error {
 	return c.JSON(
 		fiber.Map{
 			"message": "Login exitoso",
-			"usuario": usuario,
+			"usuario": fiber.Map{
+				"id": usuario.ID.Hex(),
+				"nombre": usuario.Nombre,
+				"correo": usuario.Correo,
+				"rol": usuario.Rol,
+			},
 		},
 	)
 }

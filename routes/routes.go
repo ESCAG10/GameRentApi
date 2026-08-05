@@ -24,32 +24,31 @@ func SetupRoutes(
 		})
 	})
 
+
 	// ==========================
-	// Login
+	//Login
 	// ==========================
+
 	app.Post("/login", usuarioHandler.Login)
 
 	// ==========================
 	// Usuario
 	// ==========================
+
 	app.Get("/usuario", usuarioHandler.GetUsuario)
 	app.Post("/usuario", usuarioHandler.CreateUsuario)
 	app.Get("/usuario/:id", usuarioHandler.GetUsuarioByID)
 	app.Put("/usuario/:id", usuarioHandler.UpdateUsuario)
-	app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
+app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
 
 	// ==========================
 	// Renta
 	// ==========================
 	app.Get("/renta", rentaHandler.GetRenta)
 	app.Post("/renta", rentaHandler.CreateRenta)
-	// Obtener rentas por usuario
 	app.Get("/renta/usuario/:id", rentaHandler.GetRentasByUsuarioID)
-	// Obtener una renta por ID
-	app.Get("/renta/:id", rentaHandler.GetRenta)
 	app.Get("/renta/:id", rentaHandler.GetRentaByID)
 	app.Put("/renta/:id", rentaHandler.UpdateRenta)
-	// Eliminar una renta por ID
 	app.Delete("/renta/:id", rentaHandler.DeleteRenta)
 
 	// ==========================
@@ -59,6 +58,7 @@ func SetupRoutes(
 	app.Post("/categoria", categoriaHandler.CreateCategoria)
 	app.Get("/categoria/:id", categoriaHandler.GetCategoriaByID)
 	app.Put("/categoria/:id", categoriaHandler.UpdateCategoria)
+	app.Put("/renta/:id/devolver", rentaHandler.DevolverRenta)
 	app.Delete("/categoria/:id", categoriaHandler.DeleteCategoria)
 
 	// ==========================
@@ -74,6 +74,7 @@ func SetupRoutes(
 	// Videojuego
 	// ==========================
 	app.Get("/videojuego", videojuegoHandler.GetVideojuego)
+	app.Get("/videojuego/activo", videojuegoHandler.GetVideojuegoActivos)
 	app.Post("/videojuego", videojuegoHandler.CreateVideojuego)
 	app.Get("/videojuego/:id", videojuegoHandler.GetVideojuegoByID)
 	app.Put("/videojuego/:id", videojuegoHandler.UpdateVideojuego)
