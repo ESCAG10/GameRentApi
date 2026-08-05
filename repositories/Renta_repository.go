@@ -3,9 +3,8 @@ package repositories
 import (
 	"context"
 	"errors"
+	"gamerentapi/config"
 	"gamerentapi/models"
-
-	"time"
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -24,22 +23,38 @@ func NewRentaRepository(collection *mongo.Collection) *RentaRepository {
 // Crear renta
 func (r *RentaRepository) Create(renta *models.Renta) error {
 
-	ahora := time.Now()
+	existe, err := r.ExisteRentaActiva(
+		renta.UsuarioID,
+		renta.VideojuegoID,
+	)
 
-	if renta.FechaRenta.IsZero() {
-		renta.FechaRenta = ahora
+	if err != nil {
+		return err
 	}
 
-	if renta.FechaEntrega.IsZero() {
-		renta.FechaEntrega = ahora.AddDate(0, 0, renta.PeriodoRenta)
+	if existe {
+		return errors.New("ya tienes este videojuego rentado")
 	}
 
-	renta.FechaCreacion = ahora
-	renta.FechaActualizacion = ahora
-
-	_, err := r.Collection.InsertOne(
+	_, err = r.Collection.InsertOne(
 		context.Background(),
 		renta,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = config.Database.Collection("videojuego").UpdateOne(
+		context.Background(),
+		bson.M{
+			"_id": renta.VideojuegoID,
+		},
+		bson.M{
+			"$inc": bson.M{
+				"stock": -1,
+			},
+		},
 	)
 
 	return err
@@ -64,13 +79,60 @@ func (r *RentaRepository) FindAll() ([]models.Renta, error) {
 		&rentas,
 	)
 
-	return rentas, err
+	if err != nil {
+		return nil, err
+	}
+
+	usuariosCollection := config.Database.Collection("usuario")
+
+	videojuegosCollection := config.Database.Collection("videojuego")
+
+	for i := range rentas {
+
+		// Buscar nombre del usuario
+
+		var usuario models.Usuario
+
+		err := usuariosCollection.FindOne(
+			context.Background(),
+			bson.M{
+				"_id": rentas[i].UsuarioID,
+			},
+		).Decode(&usuario)
+
+		if err == nil {
+
+			rentas[i].NombreUsuario = usuario.Nombre
+
+		}
+
+		// Buscar nombre del videojuego
+
+		var videojuego models.Videojuego
+
+		err = videojuegosCollection.FindOne(
+			context.Background(),
+			bson.M{
+				"_id": rentas[i].VideojuegoID,
+			},
+		).Decode(&videojuego)
+
+		if err == nil {
+
+			rentas[i].NombreVideojuego = videojuego.Titulo
+
+		}
+
+	}
+
+	return rentas, nil
 }
 
 // Obtener renta por ID
 func (r *RentaRepository) FindByID(id string) (*models.Renta, error) {
 
 	objectID, err := bson.ObjectIDFromHex(id)
+
 	if err != nil {
 		return nil, err
 	}
@@ -89,10 +151,11 @@ func (r *RentaRepository) FindByID(id string) (*models.Renta, error) {
 	}
 
 	return &renta, nil
+
 }
 
 // Actualizar renta
-func (r *RentaRepository) Update(id string, renta *models.Renta,) error {
+func (r *RentaRepository) Update(id string, renta *models.Renta) error {
 
 	objectID, err := bson.ObjectIDFromHex(id)
 
@@ -101,14 +164,12 @@ func (r *RentaRepository) Update(id string, renta *models.Renta,) error {
 	}
 
 	existente, err := r.FindByID(id)
-	
+
 	if err != nil {
 		return err
 	}
-	
-	renta.FechaRenta = existente.FechaRenta
+
 	renta.FechaCreacion = existente.FechaCreacion
-	renta.FechaActualizacion = time.Now()
 
 	_, err = r.Collection.UpdateOne(
 		context.Background(),
@@ -117,6 +178,7 @@ func (r *RentaRepository) Update(id string, renta *models.Renta,) error {
 		},
 		bson.M{
 			"$set": bson.M{
+
 				"usuarioId":          renta.UsuarioID,
 				"videojuegoId":       renta.VideojuegoID,
 				"categoriaId":        renta.CategoriaID,
@@ -132,35 +194,81 @@ func (r *RentaRepository) Update(id string, renta *models.Renta,) error {
 	)
 
 	return err
+
 }
 
-// Eliminar renta
+// Eliminar renta y regresar stock
 func (r *RentaRepository) Delete(id string) error {
 
-	objectID, err := bson.ObjectIDFromHex(id)
+objectID, err := bson.ObjectIDFromHex(id)
 
-	if err != nil {
-		return err
-	}
-
-	result, err := r.Collection.DeleteOne(
-		context.Background(),
-		bson.M{
-			"_id": objectID,
-		},
-	)
-
-	if err != nil {
-		return err
-	}
-
-	if result.DeletedCount == 0 {
-		return errors.New("renta no encontrada")
-	}
-
-	return nil
+if err != nil {
+return err
 }
 
+
+// Buscar la renta antes de eliminarla
+var renta models.Renta
+
+err = r.Collection.FindOne(
+context.Background(),
+bson.M{
+"_id": objectID,
+},
+).Decode(&renta)
+
+
+if err != nil {
+return errors.New("renta no encontrada")
+}
+
+
+
+// Aumentar stock del videojuego
+_, err = config.Database.Collection("videojuego").UpdateOne(
+context.Background(),
+bson.M{
+"_id": renta.VideojuegoID,
+},
+bson.M{
+"$inc": bson.M{
+"stock": 1,
+},
+},
+)
+
+
+if err != nil {
+return err
+}
+
+
+
+// Eliminar renta
+result, err := r.Collection.DeleteOne(
+context.Background(),
+bson.M{
+"_id": objectID,
+},
+)
+
+
+if err != nil {
+return err
+}
+
+
+if result.DeletedCount == 0 {
+
+return errors.New("no se pudo eliminar la renta")
+
+}
+
+
+return nil
+}
+
+// Verificar si el usuario ya tiene ese videojuego rentado
 func (r *RentaRepository) ExisteRentaActiva(usuarioID, videojuegoID bson.ObjectID) (bool, error) {
 
 	var renta models.Renta
@@ -168,26 +276,33 @@ func (r *RentaRepository) ExisteRentaActiva(usuarioID, videojuegoID bson.ObjectI
 	err := r.Collection.FindOne(
 		context.Background(),
 		bson.M{
-			"usuarioId":   usuarioID,
+
+			"usuarioId":    usuarioID,
 			"videojuegoId": videojuegoID,
-			"estado":      "Activo",
+			"estado":       "Activo",
 		},
 	).Decode(&renta)
 
 	if err != nil {
+
 		if errors.Is(err, mongo.ErrNoDocuments) {
+
 			return false, nil
+
 		}
+
 		return false, err
+
 	}
 
-	return true, nil 
+	return true, nil
 
 }
 
-func (r *RentaRepository) FindByUsuarioID(id string) ([]models.Renta, error) {
+// Obtener rentas por usuario
+func (r *RentaRepository) FindByUsuarioID(usuarioID string) ([]models.Renta, error) {
 
-	objectID, err := bson.ObjectIDFromHex(id)
+	objectID, err := bson.ObjectIDFromHex(usuarioID)
 
 	if err != nil {
 		return nil, err
@@ -196,6 +311,7 @@ func (r *RentaRepository) FindByUsuarioID(id string) ([]models.Renta, error) {
 	cursor, err := r.Collection.Find(
 		context.Background(),
 		bson.M{
+
 			"usuarioId": objectID,
 		},
 	)
@@ -212,21 +328,5 @@ func (r *RentaRepository) FindByUsuarioID(id string) ([]models.Renta, error) {
 	)
 
 	return rentas, err
-}
 
-func (r *VideojuegoRepository) IncrementarStock(id bson.ObjectID) error {
-
-	_, err := r.Collection.UpdateOne(
-		context.Background(),
-		bson.M{
-			"_id": id,
-		},
-		bson.M{
-			"$inc": bson.M{
-				"stock": 1,
-			},
-		},
-	)
-
-	return err
 }

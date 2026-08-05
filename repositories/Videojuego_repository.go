@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"context"
-	"time"
 
 	"gamerentapi/models"
 
@@ -22,11 +21,6 @@ func NewVideojuegoRepository(collection *mongo.Collection) *VideojuegoRepository
 
 // Crear videojuego
 func (r *VideojuegoRepository) Create(videojuego *models.Videojuego) error {
-
-	ahora := time.Now()
-
-	videojuego.FechaCreacion = ahora
-	videojuego.FechaActualizacion = ahora
 
 	_, err := r.Collection.InsertOne(
 		context.Background(),
@@ -48,14 +42,62 @@ func (r *VideojuegoRepository) FindAll() ([]models.Videojuego, error) {
 		return nil, err
 	}
 
+	var documentos []bson.M
+
+	if err := cursor.All(context.Background(), &documentos); err != nil {
+		return nil, err
+	}
+
 	var videojuegos []models.Videojuego
 
-	err = cursor.All(
-		context.Background(),
-		&videojuegos,
-	)
+	for _, doc := range documentos {
 
-	return videojuegos, err
+		videojuego := models.Videojuego{}
+
+		if id, ok := doc["_id"].(bson.ObjectID); ok {
+			videojuego.ID = id
+		}
+
+		videojuego.Titulo, _ = doc["titulo"].(string)
+		videojuego.Plataforma, _ = doc["plataforma"].(string)
+		videojuego.Descripcion, _ = doc["descripcion"].(string)
+
+		switch v := doc["precioRenta"].(type) {
+		case float64:
+			videojuego.PrecioRenta = v
+		case int32:
+			videojuego.PrecioRenta = float64(v)
+		case int64:
+			videojuego.PrecioRenta = float64(v)
+		}
+
+		switch v := doc["stock"].(type) {
+		case int32:
+			videojuego.Stock = int(v)
+		case int64:
+			videojuego.Stock = int(v)
+		case int:
+			videojuego.Stock = v
+		}
+
+		if activo, ok := doc["activo"].(bool); ok {
+			videojuego.Activo = activo
+		}
+
+		if categoria, ok := doc["categoriaId"].(string); ok {
+			videojuego.CategoriaID = categoria
+		}
+
+		videojuego.ImagenPortada, _ = doc["imagenPortada"].(string)
+		videojuego.Desarrollador, _ = doc["desarrollador"].(string)
+		videojuego.Editor, _ = doc["editor"].(string)
+		videojuego.FechaCreacion, _ = doc["fechaCreacion"].(string)
+		videojuego.FechaActualizacion, _ = doc["fechaActualizacion"].(string)
+
+		videojuegos = append(videojuegos, videojuego)
+	}
+
+	return videojuegos, nil
 }
 
 // Obtener videojuego por ID
@@ -67,24 +109,66 @@ func (r *VideojuegoRepository) FindByID(id string) (*models.Videojuego, error) {
 		return nil, err
 	}
 
-	var videojuego models.Videojuego
+	var doc bson.M
 
 	err = r.Collection.FindOne(
 		context.Background(),
 		bson.M{
 			"_id": objectID,
 		},
-	).Decode(&videojuego)
+	).Decode(&doc)
 
 	if err != nil {
 		return nil, err
 	}
 
+	videojuego := models.Videojuego{}
+
+	if id, ok := doc["_id"].(bson.ObjectID); ok {
+		videojuego.ID = id
+	}
+
+	videojuego.Titulo, _ = doc["titulo"].(string)
+	videojuego.Plataforma, _ = doc["plataforma"].(string)
+	videojuego.Descripcion, _ = doc["descripcion"].(string)
+
+	switch v := doc["precioRenta"].(type) {
+	case float64:
+		videojuego.PrecioRenta = v
+	case int32:
+		videojuego.PrecioRenta = float64(v)
+	case int64:
+		videojuego.PrecioRenta = float64(v)
+	}
+
+	switch v := doc["stock"].(type) {
+	case int32:
+		videojuego.Stock = int(v)
+	case int64:
+		videojuego.Stock = int(v)
+	case int:
+		videojuego.Stock = v
+	}
+
+	if activo, ok := doc["activo"].(bool); ok {
+		videojuego.Activo = activo
+	}
+
+	if categoria, ok := doc["categoriaId"].(string); ok {
+		videojuego.CategoriaID = categoria
+	}
+
+	videojuego.ImagenPortada, _ = doc["imagenPortada"].(string)
+	videojuego.Desarrollador, _ = doc["desarrollador"].(string)
+	videojuego.Editor, _ = doc["editor"].(string)
+	videojuego.FechaCreacion, _ = doc["fechaCreacion"].(string)
+	videojuego.FechaActualizacion, _ = doc["fechaActualizacion"].(string)
+
 	return &videojuego, nil
 }
 
 // Actualizar videojuego
-func (r *VideojuegoRepository) Update(id string,videojuego *models.Videojuego,) error {
+func (r *VideojuegoRepository) Update(id string, videojuego *models.Videojuego) error {
 
 	objectID, err := bson.ObjectIDFromHex(id)
 
@@ -99,7 +183,6 @@ func (r *VideojuegoRepository) Update(id string,videojuego *models.Videojuego,) 
 	}
 
 	videojuego.FechaCreacion = existente.FechaCreacion
-	videojuego.FechaActualizacion = time.Now()
 
 	_, err = r.Collection.UpdateOne(
 		context.Background(),
@@ -108,17 +191,18 @@ func (r *VideojuegoRepository) Update(id string,videojuego *models.Videojuego,) 
 		},
 		bson.M{
 			"$set": bson.M{
-				"titulo":              videojuego.Titulo,
-				"plataforma":          videojuego.Plataforma,
-				"descripcion":         videojuego.Descripcion,
-				"precioRenta":         videojuego.PrecioRenta,
-				"stock":               videojuego.Stock,
-				"activo":              videojuego.Activo,
-				"categoriaId":         videojuego.CategoriaID,
-				"desarrollador":       videojuego.Desarrollador,
-				"editor":              videojuego.Editor,
-				"fechaCreacion":       videojuego.FechaCreacion,
-				"fechaActualizacion":  videojuego.FechaActualizacion,
+				"titulo":             videojuego.Titulo,
+				"plataforma":         videojuego.Plataforma,
+				"descripcion":        videojuego.Descripcion,
+				"precioRenta":        videojuego.PrecioRenta,
+				"stock":              videojuego.Stock,
+				"activo":             videojuego.Activo,
+				"categoriaId":        videojuego.CategoriaID,
+				"imagenPortada":      videojuego.ImagenPortada,
+				"desarrollador":      videojuego.Desarrollador,
+				"editor":             videojuego.Editor,
+				"fechaCreacion":      videojuego.FechaCreacion,
+				"fechaActualizacion": videojuego.FechaActualizacion,
 			},
 		},
 	)
@@ -139,29 +223,6 @@ func (r *VideojuegoRepository) Delete(id string) error {
 		context.Background(),
 		bson.M{
 			"_id": objectID,
-		},
-	)
-
-	return err
-}
-
-func (r *VideojuegoRepository) DecreaseStock(id string) error {
-
-	objectID, err := bson.ObjectIDFromHex(id)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = r.Collection.UpdateOne(
-		context.Background(),
-		bson.M{
-			"_id": objectID,
-		},
-		bson.M{
-			"$inc": bson.M{
-				"stock": -1,
-			},
 		},
 	)
 

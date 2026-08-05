@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
@@ -17,8 +15,10 @@ type Videojuego struct {
 	PrecioRenta        float64       `bson:"precioRenta" json:"precioRenta"`
 	Stock              int           `bson:"stock" json:"stock"`
 	Activo             bool          `bson:"activo" json:"activo"`
-	CategoriaID        bson.ObjectID `bson:"categoriaId" json:"categoriaId"`
-	FechaCreacion      time.Time     `bson:"fechaCreacion" json:"fechaCreacion"`
-	FechaActualizacion time.Time     `bson:"fechaActualizacion" json:"fechaActualizacion"`
+	//CategoriaID        bson.ObjectID `bson:"categoriaId" json:"categoriaId"`
+	CategoriaID        string `bson:"categoriaId" json:"categoriaId"`
+	ImagenPortada      string `bson:"imagenPortada" json:"imagenPortada"`
+	FechaCreacion      string `bson:"fechaCreacion" json:"fechaCreacion"`
+	FechaActualizacion string `bson:"fechaActualizacion" json:"fechaActualizacion"`
 
 }

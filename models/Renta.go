@@ -1,8 +1,6 @@
 package models
 
 import (
-	"time"
-
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
@@ -11,12 +9,15 @@ type Renta struct {
 	ID                 bson.ObjectID `bson:"_id,omitempty" json:"id"`
 	UsuarioID          bson.ObjectID `bson:"usuarioId" json:"usuarioId"`
 	VideojuegoID       bson.ObjectID `bson:"videojuegoId" json:"videojuegoId"`
-	CategoriaID        bson.ObjectID `bson:"categoriaId" json:"categoriaId"`
-	FechaRenta         time.Time `bson:"fechaRenta" json:"fechaRenta"`
+	//CategoriaID        bson.ObjectID `bson:"categoriaId" json:"categoriaId"`
+	CategoriaID        string        `bson:"categoriaId" json:"categoriaId"`
+	FechaRenta         string `bson:"fechaRenta" json:"fechaRenta"`
 	PeriodoRenta       int       `bson:"periodoRenta" json:"periodoRenta"`
-	FechaEntrega       time.Time `bson:"fechaEntrega" json:"fechaEntrega"`
+	FechaEntrega       string `bson:"fechaEntrega" json:"fechaEntrega"`
 	Estado             string `bson:"estado" json:"estado"`
 	Activo             bool   `bson:"activo" json:"activo"`
-	FechaCreacion      time.Time `bson:"fechaCreacion" json:"fechaCreacion"`
-	FechaActualizacion time.Time `bson:"fechaActualizacion" json:"fechaActualizacion"`
+	FechaCreacion      string `bson:"fechaCreacion" json:"fechaCreacion"`
+	FechaActualizacion string `bson:"fechaActualizacion" json:"fechaActualizacion"`
+	NombreUsuario      string `bson:"nombreUsuario" json:"nombreUsuario"`
+	NombreVideojuego   string `bson:"nombreVideojuego" json:"nombreVideojuego"`
 }

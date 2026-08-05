@@ -95,15 +95,7 @@ func (h *VideojuegoHandler) UpdateVideojuego(c *fiber.Ctx) error {
 func (h *VideojuegoHandler) DeleteVideojuego(c *fiber.Ctx) error {
 
 	id := c.Params("id")
-
-	if err := h.Service.Delete(id); err != nil {
-	return c.Status(404).JSON(
-		fiber.Map{
-			"error": "Videojuego no encontrado",
-		},
-	)
-}
-
+	
 	if err := h.Service.Delete(id); err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err.Error(),

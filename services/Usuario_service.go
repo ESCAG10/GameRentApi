@@ -37,25 +37,15 @@ func (s *UsuarioService) Create(usuario *models.Usuario,) error {
 		return  errors.New("la contraseña es obligatorio")
 	}
 
-	existe, err := s.Repository.ExisteCorreo(usuario.Correo)
-
-	if err != nil {
-		return err
-	}
-
-	if existe {
-		return errors.New("el correo ya está registrado")
-	}
-
 	if usuario.Rol == "" {
 		usuario.Rol = "cliente"
 	}
 
-	err = s.Repository.Create(usuario)
+	err := s.Repository.Create(usuario)
 
 	fmt.Println("SERVICE ERROR:", err)
 
-	return err
+	return s.Repository.Create(usuario)
 }
 
 
@@ -90,24 +80,10 @@ func (s *UsuarioService) Delete(id string,) error {
 }
 
 func (s *UsuarioService) Login(correo, password string) (*models.Usuario, error) {
-
+	
 	if correo == "" || password == "" {
 		return nil, errors.New("correo y contraseña son obligatorios")
 	}
 
-	usuario, err := s.Repository.FindByCorreo(correo)
-
-	if err != nil {
-		return nil, errors.New("credenciales inválidas")
-	}
-
-	if usuario.Password != password {
-		return nil, errors.New("credenciales inválidas")
-	}
-
-	if !usuario.Activo {
-		return nil, errors.New("usuario inactivo")
-	}
-
-	return usuario, nil
+	return s.Repository.Login(correo, password)
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"gamerentapi/models"
 	"gamerentapi/services"
-	"gamerentapi/utils"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -27,10 +26,10 @@ func NewUsuarioHandler(service *services.UsuarioService,) *UsuarioHandler {
 func (h *UsuarioHandler) CreateUsuario(c *fiber.Ctx,) error {
 
 	fmt.Println(string(c.Body()))
-
-var usuario models.Usuario
-
-if err := c.BodyParser(&usuario); err != nil {
+	
+	var usuario models.Usuario
+	
+	if err := c.BodyParser(&usuario); err != nil {
 
     return c.Status(400).JSON(
         fiber.Map{
@@ -50,17 +49,14 @@ fmt.Println("==========================")
 
 if err := h.Service.Create(&usuario); err != nil {
 
-	return c.Status(500).JSON(
-		fiber.Map{
-			"error": err.Error(),
-		},
-	)
+    return c.Status(500).JSON(
+        fiber.Map{
+            "error": err.Error(),
+        },
+    )
 }
 
-// No devolver la contraseña
-usuario.Password = ""
-
-return c.Status(201).JSON(usuario)
+	return c.Status(201).JSON(usuario)
 }
 
 
@@ -68,7 +64,8 @@ return c.Status(201).JSON(usuario)
 // Obtener todos los usuarios
 func (h *UsuarioHandler) GetUsuario(c *fiber.Ctx,) error {
 
-	usuarios, err := h.Service.FindAll()
+
+	usuario, err := h.Service.FindAll()
 
 	if err != nil {
 
@@ -79,11 +76,8 @@ func (h *UsuarioHandler) GetUsuario(c *fiber.Ctx,) error {
 		)
 	}
 
-	for i := range usuarios {
-		usuarios[i].Password = ""
-	}
 
-	return c.Status(200).JSON(usuarios)
+	return c.JSON(usuario)
 }
 
 
@@ -94,26 +88,21 @@ func (h *UsuarioHandler) GetUsuarioByID(c *fiber.Ctx,) error {
 
 	id := c.Params("id")
 
-	if !utils.ValidarObjectID(id) {
-		return utils.Error(c, 400, "ID inválido")
-	}
 
 	usuario, err := h.Service.FindByID(id)
-	
-	if err != nil {
 
+
+	if err != nil {
 
 		return c.Status(404).JSON(
 			fiber.Map{
-				"error": err.Error(),
+				"error": "Usuario no encontrado",
 			},
 		)
 	}
 
-	// No devolver la contraseña
-	usuario.Password = ""
 
-	return c.Status(200).JSON(usuario)
+	return c.JSON(usuario)
 }
 
 
@@ -124,9 +113,6 @@ func (h *UsuarioHandler) UpdateUsuario(c *fiber.Ctx,) error {
 
 	id := c.Params("id")
 
-	if !utils.ValidarObjectID(id) {
-		return utils.Error(c, 400, "ID inválido")
-	}
 
 	var usuario models.Usuario
 
@@ -169,10 +155,6 @@ func (h *UsuarioHandler) DeleteUsuario(c *fiber.Ctx,) error {
 
 
 	id := c.Params("id")
-
-	if !utils.ValidarObjectID(id) {
-		return utils.Error(c, 400, "ID inválido")
-	}
 
 
 	if err := h.Service.Delete(id); err != nil {
@@ -223,12 +205,7 @@ func (h *UsuarioHandler) Login(c *fiber.Ctx) error {
 	return c.JSON(
 		fiber.Map{
 			"message": "Login exitoso",
-			"usuario": fiber.Map{
-				"id": usuario.ID.Hex(),
-				"nombre": usuario.Nombre,
-				"correo": usuario.Correo,
-				"rol": usuario.Rol,
-			},
+			"usuario": usuario,
 		},
 	)
 }

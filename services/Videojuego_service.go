@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"gamerentapi/models"
 	"gamerentapi/repositories"
 )
@@ -18,19 +17,7 @@ func NewVideojuegoService(repository *repositories.VideojuegoRepository) *Videoj
 
 // Crear videojuego
 func (s *VideojuegoService) Create(videojuego *models.Videojuego) error {
-
-	if videojuego.Titulo == "" {
-		return errors.New("el título es obligatorio")
-	}
 	
-	if videojuego.PrecioRenta <= 0 {
-		return errors.New("el precio debe ser mayor que cero")
-	}
-	
-	if videojuego.Stock < 0 {
-		return errors.New("el stock no puede ser negativo")
-	}
-
 	return s.Repository.Create(videojuego)
 }
 

@@ -46,9 +46,13 @@ app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
 	// ==========================
 	app.Get("/renta", rentaHandler.GetRenta)
 	app.Post("/renta", rentaHandler.CreateRenta)
+	// Obtener rentas por usuario
 	app.Get("/renta/usuario/:id", rentaHandler.GetRentasByUsuarioID)
+	// Obtener una renta por ID
+	app.Get("/renta/:id", rentaHandler.GetRenta)
 	app.Get("/renta/:id", rentaHandler.GetRentaByID)
 	app.Put("/renta/:id", rentaHandler.UpdateRenta)
+	// Eliminar una renta por ID
 	app.Delete("/renta/:id", rentaHandler.DeleteRenta)
 
 	// ==========================
