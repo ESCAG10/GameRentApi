@@ -39,10 +39,6 @@ func (s *VideojuegoService) FindAll() ([]models.Videojuego, error) {
 	return s.Repository.FindAll()
 }
 
-
-func (s *VideojuegoService) FindActivos() ([]models.Videojuego, error) {
-	return s.Repository.FindActivos()
-}
 // Obtener por ID
 func (s *VideojuegoService) FindByID(id string) (*models.Videojuego, error) {
 	return s.Repository.FindByID(id)

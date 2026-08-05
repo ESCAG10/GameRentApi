@@ -49,6 +49,7 @@ app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
 	app.Get("/renta/usuario/:id", rentaHandler.GetRentasByUsuarioID)
 	app.Get("/renta/:id", rentaHandler.GetRentaByID)
 	app.Put("/renta/:id", rentaHandler.UpdateRenta)
+	app.Put("/renta/:id/devolver", rentaHandler.DevolverRenta)
 	app.Delete("/renta/:id", rentaHandler.DeleteRenta)
 
 	// ==========================
@@ -58,7 +59,6 @@ app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
 	app.Post("/categoria", categoriaHandler.CreateCategoria)
 	app.Get("/categoria/:id", categoriaHandler.GetCategoriaByID)
 	app.Put("/categoria/:id", categoriaHandler.UpdateCategoria)
-	app.Put("/renta/:id/devolver", rentaHandler.DevolverRenta)
 	app.Delete("/categoria/:id", categoriaHandler.DeleteCategoria)
 
 	// ==========================
@@ -74,7 +74,6 @@ app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
 	// Videojuego
 	// ==========================
 	app.Get("/videojuego", videojuegoHandler.GetVideojuego)
-	app.Get("/videojuego/activo", videojuegoHandler.GetVideojuegoActivos)
 	app.Post("/videojuego", videojuegoHandler.CreateVideojuego)
 	app.Get("/videojuego/:id", videojuegoHandler.GetVideojuegoByID)
 	app.Put("/videojuego/:id", videojuegoHandler.UpdateVideojuego)

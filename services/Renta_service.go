@@ -45,13 +45,7 @@ func (s *RentaService) Create(renta *models.Renta) error {
 	if existe {
 		return errors.New("ya existe una renta activa para este videojuego")
 	}
-
-	if err := s.VideojuegoRepository.DecreaseStock(
-		renta.VideojuegoID.Hex(),
-	); err != nil {
-		return err
-	}
-
+	
 	return s.Repository.Create(renta)
 }
 

@@ -40,20 +40,7 @@ func (h *VideojuegoHandler) CreateVideojuego(c *fiber.Ctx) error {
 // Obtener todos los videojuegos
 func (h *VideojuegoHandler) GetVideojuego(c *fiber.Ctx) error {
 
-	videojuego, err := h.Service.FindAll()
-
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{
-			"error": err.Error(),
-		})
-	}
-
-	return c.JSON(videojuego)
-}
-
-func (h *VideojuegoHandler) GetVideojuegoActivos(c *fiber.Ctx) error {
-
-	videojuego, err := h.Service.FindActivos()
+	videojuegos, err := h.Service.FindAll()
 
 	if err != nil {
 		return c.Status(500).JSON(
@@ -63,8 +50,9 @@ func (h *VideojuegoHandler) GetVideojuegoActivos(c *fiber.Ctx) error {
 		)
 	}
 
-	return c.JSON(videojuego)
+	return c.JSON(videojuegos)
 }
+
 
 // Obtener videojuego por ID
 func (h *VideojuegoHandler) GetVideojuegoByID(c *fiber.Ctx) error {

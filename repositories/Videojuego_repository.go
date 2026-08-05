@@ -54,31 +54,7 @@ func (r *VideojuegoRepository) FindAll() ([]models.Videojuego, error) {
 		context.Background(),
 		&videojuegos,
 	)
-
-	return videojuegos, err
-}
-
-
-func (r *VideojuegoRepository) FindActivos() ([]models.Videojuego, error) {
-
-	cursor, err := r.Collection.Find(
-		context.Background(),
-		bson.M{
-			"activo": true,
-		},
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	var videojuegos []models.Videojuego
-
-	err = cursor.All(
-		context.Background(),
-		&videojuegos,
-	)
-
+	
 	return videojuegos, err
 }
 
@@ -168,27 +144,5 @@ func (r *VideojuegoRepository) Delete(id string) error {
 	)
 
 	return err
-}
 
-func (r *VideojuegoRepository) DecreaseStock(id string) error {
-
-	objectID, err := bson.ObjectIDFromHex(id)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = r.Collection.UpdateOne(
-		context.Background(),
-		bson.M{
-			"_id": objectID,
-		},
-		bson.M{
-			"$inc": bson.M{
-				"stock": -1,
-			},
-		},
-	)
-
-	return err
 }
