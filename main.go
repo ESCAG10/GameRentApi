@@ -40,14 +40,7 @@ func main() {
 	
 	usuarioHandler := handlers.NewUsuarioHandler(usuarioService,)
 
-	// Categoria
-	categoriaCollection := config.Database.Collection("categoria")
-	
-	categoriaRepository := repositories.NewCategoriaRepository(categoriaCollection,)
-	
-	categoriaService := services.NewCategoriaService(categoriaRepository,)
-	
-	categoriaHandler := handlers.NewCategoriaHandler(categoriaService,)
+
 
 	// Videojuego
 	videojuegoCollection := config.Database.Collection("videojuego")
@@ -78,7 +71,7 @@ func main() {
 
 
 	// Registrar rutas
-	routes.SetupRoutes(app, usuarioHandler, categoriaHandler, videojuegoHandler, rentaHandler, perfilHandler,)
+	routes.SetupRoutes(app, usuarioHandler, videojuegoHandler, rentaHandler, perfilHandler,)
 	
 	log.Println("Servidor iniciado en http://localhost:3000")
 

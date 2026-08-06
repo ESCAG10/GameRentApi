@@ -9,7 +9,6 @@ import (
 func SetupRoutes(
 	app *fiber.App,
 	usuarioHandler *handlers.UsuarioHandler,
-	categoriaHandler *handlers.CategoriaHandler,
 	videojuegoHandler *handlers.VideojuegoHandler,
 	rentaHandler *handlers.RentaHandler,
 	perfilHandler *handlers.PerfilHandler,
@@ -55,14 +54,6 @@ app.Delete("/usuario/:id", usuarioHandler.DeleteUsuario)
 	// Eliminar una renta por ID
 	app.Delete("/renta/:id", rentaHandler.DeleteRenta)
 
-	// ==========================
-	// Categoría
-	// ==========================
-	app.Get("/categoria", categoriaHandler.GetCategoria)
-	app.Post("/categoria", categoriaHandler.CreateCategoria)
-	app.Get("/categoria/:id", categoriaHandler.GetCategoriaByID)
-	app.Put("/categoria/:id", categoriaHandler.UpdateCategoria)
-	app.Delete("/categoria/:id", categoriaHandler.DeleteCategoria)
 
 	// ==========================
 	// Perfil
